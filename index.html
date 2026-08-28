@@ -169,7 +169,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbwNzh-WlpmVAOsUN4iwzaQu
 const STORAGE_CURRICULUM_KEY = 'curriculum';
 const STORAGE_STUDENTS_KEY = 'students';
 const STORAGE_PROGRESS_KEY = 'progress';
-const TEACHER_PIN = '1234'; // ⚠ поменяй на свой код — просто впиши другие цифры сюда
+const TEACHER_PIN = '8996';
 const STUDENT_COLORS = ['#f2b84b','#5ec8d8','#c77dff','#7ee787','#ff8fa3','#7db2ff'];
 
 const DEFAULT_CURRICULUM = [
@@ -215,6 +215,13 @@ async function copyStudentLink(studentId){
   }catch(e){
     window.prompt('Скопируй ссылку вручную:', link);
   }
+}
+
+async function deleteStudent(studentId){
+  state.students = state.students.filter(s => s.id !== studentId);
+  delete state.progress[studentId];
+  await saveAllToServer();
+  render();
 }
 
 function starsField(){
@@ -390,6 +397,7 @@ function renderSelect(){
       <div class="student-name">${escapeHtml(s.name)}</div>
       <div class="student-progress">${done} / ${state.curriculum.length} тем</div>
       <button class="mini-btn copy-link-btn" data-id="${s.id}" style="margin-top:8px;">🔗 ссылка</button>
+      <button class="mini-btn delete-student-btn" data-id="${s.id}" data-name="${escapeAttr(s.name)}" style="margin-top:6px;">🗑 удалить</button>
     </div>`;
   }).join('');
 
@@ -439,9 +447,17 @@ function attachSelectHandlers(){
       copyStudentLink(btn.dataset.id);
     });
   });
+  document.querySelectorAll('.delete-student-btn').forEach(btn=>{
+    btn.addEventListener('click', async (e)=>{
+      e.stopPropagation();
+      if(!verifyTeacherPin()) return;
+      const ok = window.confirm(`Удалить ученика «${btn.dataset.name}»? Весь его прогресс тоже удалится. Это нельзя отменить.`);
+      if(ok) await deleteStudent(btn.dataset.id);
+    });
+  });
   document.querySelectorAll('.student-card').forEach(card=>{
     card.addEventListener('click', async (e)=>{
-      if(e.target.closest('.copy-link-btn')) return;
+      if(e.target.closest('.copy-link-btn') || e.target.closest('.delete-student-btn')) return;
       const id = card.dataset.id;
       state.currentStudent = state.students.find(s=>s.id===id);
       await loadProgress(id);
