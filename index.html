@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Карта обучения — Фортепиано</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
+
+:root{
+  --bg-deep:#0a0e27;
+  --bg-nebula:#1b1140;
+  --gold:#f2b84b;
+  --gold-soft:#f2b84b55;
+  --cyan:#5ec8d8;
+  --lavender:#b8b0e0;
+  --text:#f2f0fb;
+  --card:rgba(255,255,255,0.06);
+  --card-border:rgba(255,255,255,0.12);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{height:100%;}
+body{
+  font-family:'Manrope',sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(ellipse at 20% 10%, #2d1b6a33 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, #4b2d7a33 0%, transparent 50%),
+    linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-nebula) 100%);
+  min-height:100vh;
+  overflow-x:hidden;
+  position:relative;
+}
+.stars{position:fixed; inset:0; z-index:0; pointer-events:none;}
+.star{position:absolute; background:#fff; border-radius:50%; opacity:0.6; animation:twinkle 3s ease-in-out infinite;}
+@keyframes twinkle{0%,100%{opacity:0.2;} 50%{opacity:0.9;}}
+
+h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif;}
+
+#app{position:relative; z-index:1; max-width:720px; margin:0 auto; padding:32px 20px 80px;}
+
+/* ---------- Header ---------- */
+.topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:12px;}
+.brand{display:flex; align-items:center; gap:10px;}
+.brand-mark{width:34px; height:34px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #fff 0%, var(--gold) 40%, #b5791f 100%); box-shadow:0 0 18px var(--gold-soft);}
+.brand-text{font-size:15px; letter-spacing:0.04em; color:var(--lavender); text-transform:uppercase;}
+.teacher-toggle{
+  background:var(--card); border:1px solid var(--card-border); color:var(--text);
+  padding:8px 14px; border-radius:20px; font-size:13px; cursor:pointer; font-family:'Manrope';
+  transition:all .2s;
+}
+.teacher-toggle.active{background:var(--gold); color:#251505; border-color:var(--gold); font-weight:600;}
+.teacher-toggle:hover{opacity:0.85;}
+
+/* ---------- Student select screen ---------- */
+.select-screen h1{font-size:28px; margin-bottom:6px;}
+.select-screen p{color:var(--lavender); margin-bottom:28px; font-size:15px;}
+.student-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); gap:14px; margin-bottom:20px;}
+.student-card{
+  background:var(--card); border:1px solid var(--card-border); border-radius:16px;
+  padding:20px 14px; text-align:center; cursor:pointer; transition:transform .15s, border-color .15s;
+}
+.student-card:hover{transform:translateY(-3px); border-color:var(--gold-soft);}
+.student-avatar{
+  width:52px; height:52px; border-radius:50%; margin:0 auto 10px; display:flex; align-items:center; justify-content:center;
+  font-family:'Space Grotesk'; font-weight:600; font-size:18px; color:#1a0e2e;
+}
+.student-name{font-size:14px; font-weight:600;}
+.student-progress{font-size:11px; color:var(--lavender); margin-top:4px;}
+.add-student-card{
+  background:transparent; border:1.5px dashed var(--card-border); border-radius:16px;
+  display:flex; align-items:center; justify-content:center; flex-direction:column; gap:6px;
+  cursor:pointer; padding:20px 14px; color:var(--lavender); font-size:13px;
+}
+.add-student-card:hover{border-color:var(--gold-soft); color:var(--gold);}
+.inline-add{display:flex; gap:8px; margin-top:6px;}
+.inline-add input{flex:1; background:var(--card); border:1px solid var(--card-border); border-radius:10px; padding:10px 12px; color:var(--text); font-family:'Manrope'; font-size:14px;}
+.inline-add button{background:var(--gold); border:none; border-radius:10px; padding:0 16px; font-weight:600; color:#251505; cursor:pointer;}
+
+/* ---------- Map screen ---------- */
+.map-header{display:flex; align-items:center; gap:14px; margin-bottom:6px;}
+.back-btn{background:none; border:none; color:var(--lavender); cursor:pointer; font-size:20px; padding:4px;}
+.map-header .student-avatar{width:44px; height:44px; font-size:16px;}
+.map-title{font-size:22px;}
+.map-sub{color:var(--lavender); font-size:13px; margin-top:2px;}
+
+.progress-bar-wrap{margin:18px 0 30px;}
+.progress-bar-track{height:8px; border-radius:5px; background:rgba(255,255,255,0.08); overflow:hidden;}
+.progress-bar-fill{height:100%; background:linear-gradient(90deg, var(--cyan), var(--gold)); border-radius:5px; transition:width .5s ease;}
+.progress-label{font-size:12px; color:var(--lavender); margin-top:6px;}
+
+.map-wrap{position:relative;}
+svg.path-svg{position:absolute; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none;}
+.path-svg path{fill:none; stroke:var(--card-border); stroke-width:2; stroke-dasharray:5 7;}
+.path-svg path.filled{stroke:var(--gold); stroke-dasharray:none; opacity:0.75;}
+
+.node-row{position:relative; z-index:1; display:flex; margin-bottom:26px; align-items:center;}
+.node-row.right{justify-content:flex-end;}
+.node-row.left{justify-content:flex-start;}
+
+.node{
+  display:flex; align-items:center; gap:14px; cursor:pointer; max-width:78%;
+}
+.node-row.right .node{flex-direction:row-reverse; text-align:right;}
+
+.node-orb{
+  width:56px; height:56px; min-width:56px; border-radius:50%; position:relative; display:flex; align-items:center; justify-content:center;
+  font-size:20px; transition:transform .2s;
+  background:radial-gradient(circle at 35% 30%, #3a2f66, #1b1440); border:2px solid var(--card-border);
+}
+.node.completed .node-orb{
+  background:radial-gradient(circle at 35% 30%, #fff, var(--gold) 45%, #a06d1e 100%);
+  border-color:var(--gold); box-shadow:0 0 22px var(--gold-soft);
+}
+.node.current .node-orb{
+  border-color:var(--cyan); box-shadow:0 0 0 4px rgba(94,200,216,0.18), 0 0 18px rgba(94,200,216,0.5);
+  animation:pulse 2s ease-in-out infinite;
+}
+.node.locked .node-orb{opacity:0.35;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 4px rgba(94,200,216,0.18), 0 0 18px rgba(94,200,216,0.5);} 50%{box-shadow:0 0 0 8px rgba(94,200,216,0.1), 0 0 26px rgba(94,200,216,0.7);}}
+
+.node-info .node-name{font-size:15px; font-weight:600;}
+.node.locked .node-info .node-name{color:var(--lavender); opacity:0.6;}
+.node-stars{font-size:12px; color:var(--gold); margin-top:3px; letter-spacing:1px;}
+.node-edit-controls{display:flex; gap:6px; margin-top:6px;}
+.node-row.right .node-edit-controls{justify-content:flex-end;}
+.mini-btn{background:var(--card); border:1px solid var(--card-border); color:var(--lavender); font-size:11px; padding:3px 9px; border-radius:8px; cursor:pointer;}
+.mini-btn:hover{color:var(--text); border-color:var(--gold-soft);}
+
+.node-input{background:var(--card); border:1px solid var(--gold-soft); border-radius:8px; padding:6px 10px; color:var(--text); font-family:'Manrope'; font-size:14px; width:180px;}
+
+.add-node-btn{
+  display:flex; align-items:center; gap:8px; justify-content:center; width:100%;
+  background:transparent; border:1.5px dashed var(--card-border); border-radius:14px; color:var(--lavender);
+  padding:14px; cursor:pointer; font-family:'Manrope'; font-size:13px; margin-top:10px;
+}
+.add-node-btn:hover{border-color:var(--gold-soft); color:var(--gold);}
+
+/* ---------- Popover ---------- */
+.overlay{position:fixed; inset:0; background:rgba(6,4,20,0.6); backdrop-filter:blur(3px); z-index:10; display:flex; align-items:center; justify-content:center; padding:20px;}
+.popover{
+  background:linear-gradient(180deg,#1e1550,#140d38); border:1px solid var(--card-border); border-radius:18px;
+  padding:26px; max-width:340px; width:100%;
+}
+.popover h3{font-size:17px; margin-bottom:4px;}
+.popover .desc{color:var(--lavender); font-size:13px; margin-bottom:18px;}
+.star-picker{display:flex; gap:10px; margin-bottom:18px;}
+.star-picker span{font-size:30px; cursor:pointer; opacity:0.3; transition:opacity .15s, transform .15s;}
+.star-picker span.on{opacity:1; transform:scale(1.1);}
+.status-row{display:flex; gap:8px; margin-bottom:20px;}
+.status-pill{flex:1; text-align:center; padding:9px; border-radius:10px; border:1px solid var(--card-border); font-size:12.5px; cursor:pointer; color:var(--lavender);}
+.status-pill.active{background:var(--gold); color:#251505; border-color:var(--gold); font-weight:600;}
+.popover-actions{display:flex; gap:10px;}
+.btn-primary{flex:1; background:var(--gold); border:none; border-radius:10px; padding:11px; font-weight:600; color:#251505; cursor:pointer; font-family:'Manrope';}
+.btn-ghost{background:transparent; border:1px solid var(--card-border); border-radius:10px; padding:11px 16px; color:var(--lavender); cursor:pointer; font-family:'Manrope';}
+
+.hint{color:var(--lavender); font-size:12px; text-align:center; margin-top:24px; opacity:0.7;}
+.sync-row{font-size:12px; color:var(--cyan); margin-bottom:16px; min-height:16px;}
+.sync-row .error{color:#ff8f8f;}
+#syncStatus.error{color:#ff8f8f;}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<div id="app"><div style="text-align:center;padding:60px 0;color:#b8b0e0;">Загрузка…</div></div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbwNzh-WlpmVAOsUN4iwzaQu9zS46mwgQDmcX8YxCs2qFe-HKpg-HEY009SmxpOQPzHL/exec';
+const STORAGE_CURRICULUM_KEY = 'curriculum';
+const STORAGE_STUDENTS_KEY = 'students';
+const STORAGE_PROGRESS_KEY = 'progress';
+const TEACHER_PIN = '1234'; // ⚠ поменяй на свой код — просто впиши другие цифры сюда
+const STUDENT_COLORS = ['#f2b84b','#5ec8d8','#c77dff','#7ee787','#ff8fa3','#7db2ff'];
+
+const DEFAULT_CURRICULUM = [
+  {id:'t1', name:'Знакомство с клавиатурой', desc:'Ориентация на клавиатуре, октавы, посадка за инструментом'},
+  {id:'t2', name:'Ноты первой октавы', desc:'Чтение и узнавание нот до-си первой октавы'},
+  {id:'t3', name:'Ритм: четверти и половинные', desc:'Счёт вслух, хлопки, простые ритмические рисунки'},
+  {id:'t4', name:'Позиция руки', desc:'Свобода запястья, округлая кисть, первые упражнения'},
+  {id:'t5', name:'Мелодия в 5 нотах', desc:'Первая пьеса одной рукой в пятипальцевой позиции'},
+  {id:'t6', name:'Штрихи: legato и staccato', desc:'Связная и отрывистая игра, контроль звука'},
+  {id:'t7', name:'Гаммы До и Соль мажор', desc:'Аппликатура, ровность звучания'},
+  {id:'t8', name:'Аккомпанемент левой рукой', desc:'Простой бас и аккордовая поддержка'},
+  {id:'t9', name:'Динамика: forte и piano', desc:'Работа над выразительностью и контрастом'},
+  {id:'t10', name:'Пьеса двумя руками', desc:'Координация рук, первая полноценная пьеса'},
+  {id:'t11', name:'Аккорды: трезвучия', desc:'Построение и игра простых трезвучий'},
+  {id:'t12', name:'Концертная пьеса', desc:'Подготовка произведения к выступлению или зачёту'},
+];
+
+let state = {
+  curriculum: null,
+  students: null,
+  progress: {}, // studentId -> {topicId: {status, stars}}
+  view: 'select', // 'select' | 'map'
+  currentStudent: null,
+  teacherMode: false,
+  popoverTopic: null,
+  studentLinkMode: false, // true, если открыли по персональной ссылке конкретного ученика
+};
+
+const URL_STUDENT_ID = new URLSearchParams(window.location.search).get('student');
+
+function studentLink(studentId){
+  const url = new URL(window.location.href);
+  url.search = '';
+  url.searchParams.set('student', studentId);
+  return url.toString();
+}
+
+async function copyStudentLink(studentId){
+  const link = studentLink(studentId);
+  try{
+    await navigator.clipboard.writeText(link);
+    alert('Ссылка скопирована:\n' + link);
+  }catch(e){
+    window.prompt('Скопируй ссылку вручную:', link);
+  }
+}
+
+function starsField(){
+  const container = document.getElementById('stars');
+  for(let i=0;i<40;i++){
+    const s = document.createElement('div');
+    s.className='star';
+    s.style.width = s.style.height = (Math.random()*2+1)+'px';
+    s.style.left = Math.random()*100+'%';
+    s.style.top = Math.random()*100+'%';
+    s.style.animationDelay = (Math.random()*3)+'s';
+    container.appendChild(s);
+  }
+}
+starsField();
+
+function debugLog(msg, isError){
+  state.syncStatus = {msg, isError};
+  const el = document.getElementById('syncStatus');
+  if(el){
+    el.textContent = msg;
+    el.classList.toggle('error', !!isError);
+  }
+}
+
+function progressToArray(){
+  const arr = [];
+  Object.keys(state.progress).forEach(studentId => {
+    const topics = state.progress[studentId] || {};
+    Object.keys(topics).forEach(topicId => {
+      const p = topics[topicId];
+      arr.push({studentId, topicId, status: p.status, stars: p.stars||0});
+    });
+  });
+  return arr;
+}
+
+function arrayToProgress(arr){
+  const obj = {};
+  (arr||[]).forEach(row => {
+    const sid = String(row.studentId), tid = String(row.topicId);
+    if(!obj[sid]) obj[sid] = {};
+    obj[sid][tid] = {status: row.status, stars: Number(row.stars)||0};
+  });
+  return obj;
+}
+
+function exportData(){
+  const payload = {
+    students: state.students,
+    curriculum: state.curriculum,
+    progress: progressToArray(),
+    exportedAt: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'piano-map-data.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function importData(file){
+  const reader = new FileReader();
+  reader.onload = async (e)=>{
+    try{
+      const data = JSON.parse(e.target.result);
+      state.students = (data.students||[]).map(s=>({id:String(s.id), name:s.name, color:s.color}));
+      state.curriculum = (data.curriculum && data.curriculum.length) ? data.curriculum.map(t=>({id:String(t.id), name:t.name, desc:t.desc})) : DEFAULT_CURRICULUM;
+      state.progress = arrayToProgress(data.progress);
+      debugLog('✔ Файл загружен');
+      await saveAllToServer(); // заодно сохраним и в таблицу
+      render();
+    }catch(err){
+      debugLog('⚠ Не удалось прочитать файл: ' + err.message, true);
+    }
+  };
+  reader.readAsText(file);
+}
+
+async function saveAllToServer(){
+  debugLog('Сохранение…');
+  try{
+    await fetch(API_URL, {
+      method:'POST',
+      body: JSON.stringify({action:'saveAll', data:{
+        students: state.students,
+        curriculum: state.curriculum,
+        progress: progressToArray()
+      }})
+    });
+    debugLog('☁ Сохранено в таблице');
+  }catch(e){
+    debugLog('⚠ Не удалось сохранить: ' + e.message + ' — используй кнопку "Сохранить файл"', true);
+  }
+}
+
+async function loadAll(){
+  debugLog('Загрузка из таблицы…');
+  try{
+    const res = await fetch(API_URL + '?action=getAll');
+    const data = await res.json();
+    state.students = (data.students||[]).map(s=>({id:String(s.id), name:s.name, color:s.color}));
+    state.curriculum = (data.curriculum && data.curriculum.length) ? data.curriculum.map(t=>({id:String(t.id), name:t.name, desc:t.desc})) : DEFAULT_CURRICULUM;
+    state.progress = arrayToProgress(data.progress);
+    debugLog('☁ Синхронизировано');
+    if(!data.curriculum || !data.curriculum.length){
+      await saveCurriculum(); // заполняем таблицу темами по умолчанию при первом запуске
+    }
+  }catch(e){
+    state.curriculum = DEFAULT_CURRICULUM;
+    state.students = [];
+    state.progress = {};
+    debugLog('⚠ Нет связи с таблицей: ' + e.message + ' — используй кнопку "Загрузить файл"', true);
+  }
+
+  if(URL_STUDENT_ID){
+    const found = state.students.find(s => s.id === URL_STUDENT_ID);
+    if(found){
+      state.currentStudent = found;
+      state.view = 'map';
+      state.studentLinkMode = true;
+    } else {
+      state.view = 'linkError';
+    }
+  }
+
+  render();
+}
+
+async function saveCurriculum(){ await saveAllToServer(); }
+async function saveStudents(){ await saveAllToServer(); }
+async function loadProgress(studentId){ if(!state.progress[studentId]) state.progress[studentId] = {}; }
+async function saveProgress(studentId){ await saveAllToServer(); }
+
+function computeStatuses(studentId){
+  const prog = state.progress[studentId] || {};
+  const list = state.curriculum;
+  let firstIncompleteFound = false;
+  return list.map((t, idx) => {
+    const p = prog[t.id];
+    let status = 'locked';
+    if(p && p.status === 'completed') status = 'completed';
+    else if(!firstIncompleteFound){ status = 'current'; firstIncompleteFound = true; }
+    return {...t, status, stars: p ? (p.stars||0) : 0};
+  });
+}
+
+function render(){
+  const app = document.getElementById('app');
+  if(state.view === 'linkError'){
+    app.innerHTML = `
+      <div class="topbar"><div class="brand"><div class="brand-mark"></div><div class="brand-text">Карта учеников</div></div></div>
+      <div class="select-screen">
+        <h1 class="display">Ссылка не найдена</h1>
+        <p>Такого ученика нет на карте. Уточни ссылку у преподавателя.</p>
+      </div>`;
+  }
+  else if(state.view === 'select'){ app.innerHTML = renderSelect(); attachSelectHandlers(); }
+  else { app.innerHTML = renderMap(); attachMapHandlers(); drawPaths(); }
+}
+
+function renderSelect(){
+  const cards = state.students.map((s,i) => {
+    const statuses = computeStatuses(s.id);
+    const done = statuses.filter(x=>x.status==='completed').length;
+    const initials = s.name.trim().split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    return `<div class="student-card" data-id="${s.id}">
+      <div class="student-avatar" style="background:${s.color}">${initials}</div>
+      <div class="student-name">${escapeHtml(s.name)}</div>
+      <div class="student-progress">${done} / ${state.curriculum.length} тем</div>
+      <button class="mini-btn copy-link-btn" data-id="${s.id}" style="margin-top:8px;">🔗 ссылка</button>
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="topbar">
+      <div class="brand"><div class="brand-mark"></div><div class="brand-text">Карта учеников</div></div>
+      <div style="display:flex; gap:8px;">
+        <button class="teacher-toggle" id="exportBtn">💾 Сохранить файл</button>
+        <button class="teacher-toggle" id="importBtn">📂 Загрузить файл</button>
+        <input type="file" id="importFile" accept="application/json" style="display:none;">
+      </div>
+    </div>
+    <div class="select-screen">
+      <h1 class="display">Кто открывает карту?</h1>
+      <p>Эта страница — только для тебя. Каждому ученику отправляй его персональную ссылку («🔗 ссылка» на карточке) — по ней он увидит только свою карту.</p>
+      <div class="sync-row"><span id="syncStatus">${state.syncStatus ? state.syncStatus.msg : ''}</span></div>
+      <div class="student-grid" id="studentGrid">
+        ${cards}
+        <div class="add-student-card" id="addStudentBtn">
+          <div style="font-size:24px;">＋</div>
+          <div>Добавить ученика</div>
+        </div>
+      </div>
+      <div id="addStudentForm" style="display:none;" class="inline-add">
+        <input type="text" id="newStudentName" placeholder="Имя ученика">
+        <button id="confirmAddStudent">Добавить</button>
+      </div>
+    </div>
+    <div class="hint">${state.students.length === 0 ? 'Если у тебя уже есть сохранённый файл с прогрессом — нажми «Загрузить файл» вверху.<br>' : ''}Эту страницу ученикам не отправляй — только их персональные ссылки («🔗 ссылка» на карточке).</div>
+  `;
+}
+
+function attachSelectHandlers(){
+  document.getElementById('exportBtn').addEventListener('click', exportData);
+  document.getElementById('importBtn').addEventListener('click', ()=> document.getElementById('importFile').click());
+  document.getElementById('importFile').addEventListener('change', (e)=>{
+    const file = e.target.files[0];
+    if(file){
+      if(!verifyTeacherPin()){ e.target.value=''; return; }
+      importData(file);
+    }
+    e.target.value = '';
+  });
+  document.querySelectorAll('.copy-link-btn').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      copyStudentLink(btn.dataset.id);
+    });
+  });
+  document.querySelectorAll('.student-card').forEach(card=>{
+    card.addEventListener('click', async (e)=>{
+      if(e.target.closest('.copy-link-btn')) return;
+      const id = card.dataset.id;
+      state.currentStudent = state.students.find(s=>s.id===id);
+      await loadProgress(id);
+      state.view = 'map';
+      render();
+    });
+  });
+  document.getElementById('addStudentBtn').addEventListener('click', ()=>{
+    document.getElementById('addStudentForm').style.display='flex';
+    document.getElementById('newStudentName').focus();
+  });
+  const confirmAdd = async ()=>{
+    if(!verifyTeacherPin()) return;
+    const input = document.getElementById('newStudentName');
+    const name = input.value.trim();
+    if(!name) return;
+    const color = STUDENT_COLORS[state.students.length % STUDENT_COLORS.length];
+    const id = 's_' + Date.now();
+    const newStudent = {id, name, color};
+    state.students.push(newStudent);
+    await saveStudents();
+    state.currentStudent = newStudent;
+    await loadProgress(id);
+    state.teacherMode = true;
+    state.view = 'map';
+    render();
+  };
+  document.getElementById('confirmAddStudent').addEventListener('click', confirmAdd);
+  document.getElementById('newStudentName').addEventListener('keydown', e=>{ if(e.key==='Enter') confirmAdd(); });
+}
+
+function renderMap(){
+  const student = state.currentStudent;
+  const statuses = computeStatuses(student.id);
+  const done = statuses.filter(x=>x.status==='completed').length;
+  const pct = Math.round((done/statuses.length)*100);
+
+  const rows = statuses.map((t, idx) => {
+    const side = idx % 2 === 0 ? 'left' : 'right';
+    let icon = '☆';
+    if(t.status==='completed') icon = '★';
+    else if(t.status==='current') icon = '●';
+    else icon = '🔒';
+    const starsStr = t.status==='completed' ? '★'.repeat(t.stars) + '☆'.repeat(3-t.stars) : '';
+    const editControls = state.teacherMode ? `
+      <div class="node-edit-controls">
+        <button class="mini-btn rename-btn" data-id="${t.id}">переим.</button>
+        <button class="mini-btn remove-btn" data-id="${t.id}">удалить</button>
+      </div>` : '';
+    return `<div class="node-row ${side}">
+      <div class="node ${t.status}" data-id="${t.id}">
+        <div class="node-orb">${icon}</div>
+        <div class="node-info">
+          <div class="node-name" data-name-id="${t.id}">${escapeHtml(t.name)}</div>
+          ${starsStr ? `<div class="node-stars">${starsStr}</div>` : ''}
+          ${editControls}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="topbar">
+      <div class="brand"><div class="brand-mark"></div><div class="brand-text">Карта учеников</div></div>
+      <button class="teacher-toggle ${state.teacherMode?'active':''}" id="teacherToggle">${state.teacherMode ? '✓ Режим учителя' : 'Режим учителя'}</button>
+    </div>
+    <div class="map-header">
+      ${state.studentLinkMode ? '' : '<button class="back-btn" id="backBtn">←</button>'}
+      <div class="student-avatar" style="background:${student.color}">${student.name.trim().split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase()}</div>
+      <div>
+        <div class="map-title display">${escapeHtml(student.name)}</div>
+        <div class="map-sub">Путь к следующему созвездию тем</div>
+      </div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-track"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+      <div class="progress-label">${done} из ${statuses.length} тем пройдено · ${pct}%</div>
+    </div>
+    <div class="map-wrap" id="mapWrap">
+      <svg class="path-svg" id="pathSvg"></svg>
+      ${rows}
+      ${state.teacherMode ? '<button class="add-node-btn" id="addNodeBtn">＋ Добавить тему на карту</button>' : ''}
+    </div>
+    <div class="hint">${state.teacherMode ? 'Нажми на тему, чтобы отметить прогресс и звёзды.' : 'Открытые темы выделены золотым. Следующая тема отмечена пульсирующим кругом.'}</div>
+  `;
+}
+
+function drawPaths(){
+  const svg = document.getElementById('pathSvg');
+  const wrap = document.getElementById('mapWrap');
+  if(!svg || !wrap) return;
+  const orbs = Array.from(wrap.querySelectorAll('.node-orb'));
+  if(orbs.length < 2){ svg.innerHTML=''; return; }
+  const wrapRect = wrap.getBoundingClientRect();
+  svg.setAttribute('width', wrapRect.width);
+  svg.setAttribute('height', wrapRect.height);
+  svg.setAttribute('viewBox', `0 0 ${wrapRect.width} ${wrapRect.height}`);
+
+  const points = orbs.map(o=>{
+    const r = o.getBoundingClientRect();
+    return {x: r.left - wrapRect.left + r.width/2, y: r.top - wrapRect.top + r.height/2};
+  });
+
+  let d = `M ${points[0].x} ${points[0].y}`;
+  for(let i=1;i<points.length;i++){
+    const midY = (points[i-1].y + points[i].y)/2;
+    d += ` C ${points[i-1].x} ${midY}, ${points[i].x} ${midY}, ${points[i].x} ${points[i].y}`;
+  }
+  svg.innerHTML = `<path d="${d}"></path>`;
+}
+
+function attachMapHandlers(){
+  const backBtn = document.getElementById('backBtn');
+  if(backBtn) backBtn.addEventListener('click', ()=>{ state.view='select'; render(); });
+  document.getElementById('teacherToggle').addEventListener('click', ()=>{
+    if(!state.teacherMode){
+      if(!verifyTeacherPin()) return;
+    }
+    state.teacherMode = !state.teacherMode;
+    render();
+  });
+
+  document.querySelectorAll('.node').forEach(node=>{
+    node.addEventListener('click', (e)=>{
+      if(e.target.closest('.rename-btn') || e.target.closest('.remove-btn')) return;
+      const id = node.dataset.id;
+      const topic = state.curriculum.find(t=>t.id===id);
+      openPopover(topic);
+    });
+  });
+
+  if(state.teacherMode){
+    document.querySelectorAll('.rename-btn').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        const el = document.querySelector(`[data-name-id="${id}"]`);
+        const topic = state.curriculum.find(t=>t.id===id);
+        el.outerHTML = `<input class="node-input" data-name-input="${id}" value="${escapeAttr(topic.name)}">`;
+        const input = document.querySelector(`[data-name-input="${id}"]`);
+        input.focus(); input.select();
+        const commit = async ()=>{
+          topic.name = input.value.trim() || topic.name;
+          await saveCurriculum();
+          render();
+        };
+        input.addEventListener('keydown', ev=>{ if(ev.key==='Enter') commit(); });
+        input.addEventListener('blur', commit);
+      });
+    });
+    document.querySelectorAll('.remove-btn').forEach(btn=>{
+      btn.addEventListener('click', async (e)=>{
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        state.curriculum = state.curriculum.filter(t=>t.id!==id);
+        await saveCurriculum();
+        render();
+      });
+    });
+    const addBtn = document.getElementById('addNodeBtn');
+    if(addBtn) addBtn.addEventListener('click', async ()=>{
+      const id = 't_'+Date.now();
+      state.curriculum.push({id, name:'Новая тема', desc:''});
+      await saveCurriculum();
+      render();
+    });
+  }
+
+  window.addEventListener('resize', drawPaths);
+}
+
+function openPopover(topic){
+  const student = state.currentStudent;
+  const prog = state.progress[student.id] || {};
+  const current = prog[topic.id] || {status:'locked', stars:0};
+  let selectedStars = current.stars || 0;
+  let selectedStatus = current.status === 'completed' ? 'completed' : 'progress';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.innerHTML = `
+    <div class="popover">
+      <h3 class="display">${escapeHtml(topic.name)}</h3>
+      <div class="desc">${escapeHtml(topic.desc||'')}</div>
+      ${state.teacherMode ? `
+        <div class="status-row">
+          <div class="status-pill ${selectedStatus==='progress'?'active':''}" data-status="progress">В процессе</div>
+          <div class="status-pill ${selectedStatus==='completed'?'active':''}" data-status="completed">Пройдено</div>
+        </div>
+        <div class="star-picker" id="starPicker">
+          ${[1,2,3].map(n=>`<span data-n="${n}" class="${n<=selectedStars?'on':''}">★</span>`).join('')}
+        </div>
+        <div class="popover-actions">
+          <button class="btn-ghost" id="cancelPop">Отмена</button>
+          <button class="btn-primary" id="savePop">Сохранить</button>
+        </div>
+      ` : `
+        <div class="popover-actions">
+          <button class="btn-ghost" id="cancelPop" style="flex:1;">Закрыть</button>
+        </div>
+      `}
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) overlay.remove(); });
+  overlay.querySelector('#cancelPop').addEventListener('click', ()=> overlay.remove());
+
+  if(state.teacherMode){
+    overlay.querySelectorAll('.status-pill').forEach(p=>{
+      p.addEventListener('click', ()=>{
+        selectedStatus = p.dataset.status;
+        overlay.querySelectorAll('.status-pill').forEach(x=>x.classList.remove('active'));
+        p.classList.add('active');
+      });
+    });
+    overlay.querySelectorAll('#starPicker span').forEach(s=>{
+      s.addEventListener('click', ()=>{
+        selectedStars = parseInt(s.dataset.n);
+        overlay.querySelectorAll('#starPicker span').forEach(x=>{
+          x.classList.toggle('on', parseInt(x.dataset.n) <= selectedStars);
+        });
+      });
+    });
+    overlay.querySelector('#savePop').addEventListener('click', async ()=>{
+      prog[topic.id] = {status: selectedStatus, stars: selectedStatus==='completed' ? selectedStars : 0};
+      state.progress[student.id] = prog;
+      await saveProgress(student.id);
+      overlay.remove();
+      render();
+    });
+  }
+}
+
+function verifyTeacherPin(){
+  if(state.teacherMode) return true;
+  const pin = window.prompt('Введи PIN-код учителя:');
+  if(pin === null) return false;
+  if(pin !== TEACHER_PIN){ alert('Неверный PIN'); return false; }
+  return true;
+}
+
+function escapeHtml(str){
+  return (str||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function escapeAttr(str){ return escapeHtml(str); }
+
+loadAll();
+</script>
+</body>
+</html>
