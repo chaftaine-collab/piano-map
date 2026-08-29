@@ -37,7 +37,7 @@ body{
 
 h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif;}
 
-#app{position:relative; z-index:1; max-width:720px; margin:0 auto; padding:32px 20px 80px;}
+#app{position:relative; z-index:1; max-width:960px; margin:0 auto; padding:32px 20px 80px;}
 
 /* ---------- Header ---------- */
 .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:12px;}
@@ -77,71 +77,42 @@ h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif;}
 .inline-add input{flex:1; background:var(--card); border:1px solid var(--card-border); border-radius:10px; padding:10px 12px; color:var(--text); font-family:'Manrope'; font-size:14px;}
 .inline-add button{background:var(--gold); border:none; border-radius:10px; padding:0 16px; font-weight:600; color:#251505; cursor:pointer;}
 
-/* ---------- Map screen ---------- */
+/* ---------- Map / system screen ---------- */
 .map-header{display:flex; align-items:center; gap:14px; margin-bottom:6px;}
 .back-btn{background:none; border:none; color:var(--lavender); cursor:pointer; font-size:20px; padding:4px;}
 .map-header .student-avatar{width:44px; height:44px; font-size:16px;}
 .map-title{font-size:22px;}
 .map-sub{color:var(--lavender); font-size:13px; margin-top:2px;}
 
-.progress-bar-wrap{margin:18px 0 30px;}
+.progress-bar-wrap{margin:18px 0 20px;}
 .progress-bar-track{height:8px; border-radius:5px; background:rgba(255,255,255,0.08); overflow:hidden;}
 .progress-bar-fill{height:100%; background:linear-gradient(90deg, var(--cyan), var(--gold)); border-radius:5px; transition:width .5s ease;}
 .progress-label{font-size:12px; color:var(--lavender); margin-top:6px;}
 
-.map-wrap{position:relative;}
-svg.path-svg{position:absolute; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none;}
-.path-svg path{fill:none; stroke:var(--card-border); stroke-width:2; stroke-dasharray:5 7;}
-.path-svg path.filled{stroke:var(--gold); stroke-dasharray:none; opacity:0.75;}
-
-.node-row{position:relative; z-index:1; display:flex; margin-bottom:26px; align-items:center;}
-.node-row.right{justify-content:flex-end;}
-.node-row.left{justify-content:flex-start;}
-
-.node{
-  display:flex; align-items:center; gap:14px; cursor:pointer; max-width:78%;
-}
-.node-row.right .node{flex-direction:row-reverse; text-align:right;}
-
-.node-orb{
-  width:56px; height:56px; min-width:56px; border-radius:50%; position:relative; display:flex; align-items:center; justify-content:center;
-  font-size:20px; transition:transform .2s;
-  background:radial-gradient(circle at 35% 30%, #3a2f66, #1b1440); border:2px solid var(--card-border);
-}
-.node.completed .node-orb{
-  background:radial-gradient(circle at 35% 30%, #fff, var(--gold) 45%, #a06d1e 100%);
-  border-color:var(--gold); box-shadow:0 0 22px var(--gold-soft);
-}
-.node.current .node-orb{
-  border-color:var(--cyan); box-shadow:0 0 0 4px rgba(94,200,216,0.18), 0 0 18px rgba(94,200,216,0.5);
-  animation:pulse 2s ease-in-out infinite;
-}
-.node.locked .node-orb{opacity:0.35;}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 4px rgba(94,200,216,0.18), 0 0 18px rgba(94,200,216,0.5);} 50%{box-shadow:0 0 0 8px rgba(94,200,216,0.1), 0 0 26px rgba(94,200,216,0.7);}}
-
-.node-info .node-name{font-size:15px; font-weight:600;}
-.node.locked .node-info .node-name{color:var(--lavender); opacity:0.6;}
-.node-stars{font-size:12px; color:var(--gold); margin-top:3px; letter-spacing:1px;}
-.node-edit-controls{display:flex; gap:6px; margin-top:6px;}
-.node-row.right .node-edit-controls{justify-content:flex-end;}
-.mini-btn{background:var(--card); border:1px solid var(--card-border); color:var(--lavender); font-size:11px; padding:3px 9px; border-radius:8px; cursor:pointer;}
-.mini-btn:hover{color:var(--text); border-color:var(--gold-soft);}
-
-.node-input{background:var(--card); border:1px solid var(--gold-soft); border-radius:8px; padding:6px 10px; color:var(--text); font-family:'Manrope'; font-size:14px; width:180px;}
+.system-wrap{position:relative; width:100%; height:min(70vh,620px); min-height:380px; border-radius:20px; overflow:hidden; background:radial-gradient(ellipse at center, #170f42 0%, #0a0e27 75%); border:1px solid var(--card-border); margin-bottom:14px; cursor:grab;}
+.system-wrap:active{cursor:grabbing;}
+.system-wrap canvas{display:block; width:100%; height:100%;}
+.system-hint{position:absolute; bottom:10px; left:50%; transform:translateX(-50%); font-size:11px; color:var(--lavender); opacity:0.55; pointer-events:none; text-align:center; width:90%;}
+.lock-toast{position:absolute; top:14px; left:50%; transform:translateX(-50%) translateY(-8px); background:rgba(20,13,56,0.92); border:1px solid var(--card-border); padding:9px 18px; border-radius:20px; font-size:12.5px; opacity:0; transition:opacity .25s, transform .25s; pointer-events:none; white-space:nowrap;}
+.lock-toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+.system-loading{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:var(--lavender); font-size:13px;}
 
 .add-node-btn{
   display:flex; align-items:center; gap:8px; justify-content:center; width:100%;
   background:transparent; border:1.5px dashed var(--card-border); border-radius:14px; color:var(--lavender);
-  padding:14px; cursor:pointer; font-family:'Manrope'; font-size:13px; margin-top:10px;
+  padding:14px; cursor:pointer; font-family:'Manrope'; font-size:13px; margin-top:6px;
 }
 .add-node-btn:hover{border-color:var(--gold-soft); color:var(--gold);}
+.map-actions-row{display:flex; gap:10px; flex-wrap:wrap;}
+.map-actions-row .add-node-btn{flex:1; margin-top:0;}
 
-/* ---------- Popover ---------- */
-.overlay{position:fixed; inset:0; background:rgba(6,4,20,0.6); backdrop-filter:blur(3px); z-index:10; display:flex; align-items:center; justify-content:center; padding:20px;}
+/* ---------- Popover / panels ---------- */
+.overlay{position:fixed; inset:0; background:rgba(6,4,20,0.6); backdrop-filter:blur(3px); z-index:10; display:flex; align-items:flex-start; justify-content:center; padding:40px 20px; overflow-y:auto;}
 .popover{
   background:linear-gradient(180deg,#1e1550,#140d38); border:1px solid var(--card-border); border-radius:18px;
   padding:26px; max-width:340px; width:100%;
 }
+.popover.wide{max-width:460px;}
 .popover h3{font-size:17px; margin-bottom:4px;}
 .popover .desc{color:var(--lavender); font-size:13px; margin-bottom:18px;}
 .star-picker{display:flex; gap:10px; margin-bottom:18px;}
@@ -154,6 +125,48 @@ svg.path-svg{position:absolute; top:0; left:0; width:100%; height:100%; z-index:
 .btn-primary{flex:1; background:var(--gold); border:none; border-radius:10px; padding:11px; font-weight:600; color:#251505; cursor:pointer; font-family:'Manrope';}
 .btn-ghost{background:transparent; border:1px solid var(--card-border); border-radius:10px; padding:11px 16px; color:var(--lavender); cursor:pointer; font-family:'Manrope';}
 
+.panel-header{display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:4px;}
+.panel-close{background:none; border:none; color:var(--lavender); font-size:20px; cursor:pointer; line-height:1;}
+.panel-sub{color:var(--lavender); font-size:12.5px; margin-bottom:16px;}
+.mini-btn{background:var(--card); border:1px solid var(--card-border); color:var(--lavender); font-size:11px; padding:3px 9px; border-radius:8px; cursor:pointer; white-space:nowrap;}
+.mini-btn:hover{color:var(--text); border-color:var(--gold-soft);}
+.mini-btn-row{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px;}
+
+.topic-row{display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--card-border); cursor:pointer;}
+.topic-row:last-child{border-bottom:none;}
+.topic-row.locked{opacity:0.4; cursor:default;}
+.t-icon{width:34px; height:34px; min-width:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; background:radial-gradient(circle at 35% 30%,#3a2f66,#1b1440); border:2px solid var(--card-border);}
+.topic-row.completed .t-icon{background:radial-gradient(circle at 35% 30%,#fff,var(--gold) 45%,#a06d1e 100%); border-color:var(--gold); color:#251505;}
+.topic-row.current .t-icon{border-color:var(--cyan); box-shadow:0 0 10px rgba(94,200,216,0.6);}
+.topic-row.test-row .t-icon{background:radial-gradient(circle at 35% 30%,#5ec8d8,#1b6b78);}
+.t-body{flex:1; min-width:0;}
+.t-name{font-size:13px; font-weight:600;}
+.t-stars{font-size:11px; color:var(--gold); margin-top:2px;}
+.t-materials{display:flex; gap:6px; flex-wrap:wrap; margin-top:4px;}
+.t-materials a{font-size:10.5px; color:var(--cyan); text-decoration:none; border:1px solid var(--card-border); border-radius:8px; padding:2px 7px;}
+.t-materials a:hover{border-color:var(--cyan);}
+.t-edit{display:flex; gap:5px;}
+.node-input{background:var(--card); border:1px solid var(--gold-soft); border-radius:8px; padding:6px 10px; color:var(--text); font-family:'Manrope'; font-size:13px; width:150px;}
+
+.repertoire-tabs{display:flex; gap:8px; margin-bottom:14px;}
+.repertoire-tabs button{flex:1; background:var(--card); border:1px solid var(--card-border); color:var(--lavender); padding:8px; border-radius:10px; font-size:12px; cursor:pointer; font-family:'Manrope';}
+.repertoire-tabs button.active{background:var(--gold); color:#251505; font-weight:600; border-color:var(--gold);}
+.rep-item{background:var(--card); border:1px solid var(--card-border); border-radius:12px; padding:12px 14px; margin-bottom:10px;}
+.rep-title{font-size:14px; font-weight:600;}
+.rep-composer{font-size:12px; color:var(--lavender); margin-top:1px;}
+.rep-notes{font-size:12px; color:var(--lavender); margin-top:6px; white-space:pre-wrap;}
+.rep-links{display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;}
+.rep-links a{font-size:10.5px; color:var(--cyan); text-decoration:none; border:1px solid var(--card-border); border-radius:8px; padding:2px 7px;}
+.rep-empty{color:var(--lavender); font-size:12.5px; text-align:center; padding:24px 0; opacity:0.7;}
+.field-label{font-size:11.5px; color:var(--lavender); text-transform:uppercase; letter-spacing:.04em; margin:14px 0 6px;}
+.field-input, .field-textarea{width:100%; background:var(--card); border:1px solid var(--card-border); border-radius:10px; padding:10px 12px; color:var(--text); font-family:'Manrope'; font-size:13.5px;}
+.field-textarea{min-height:70px; resize:vertical;}
+.photo-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(90px,1fr)); gap:8px; margin-top:8px;}
+.photo-item{position:relative; border-radius:10px; overflow:hidden; border:1px solid var(--card-border); aspect-ratio:1;}
+.photo-item img{width:100%; height:100%; object-fit:cover; display:block;}
+.photo-item .photo-remove{position:absolute; top:3px; right:3px; background:rgba(6,4,20,0.75); border:none; color:#fff; border-radius:50%; width:20px; height:20px; font-size:11px; cursor:pointer;}
+.photo-item .photo-caption{position:absolute; bottom:0; left:0; right:0; background:rgba(6,4,20,0.75); font-size:9.5px; padding:3px 5px; text-align:center;}
+
 .hint{color:var(--lavender); font-size:12px; text-align:center; margin-top:24px; opacity:0.7;}
 .sync-row{font-size:12px; color:var(--cyan); margin-bottom:16px; min-height:16px;}
 .sync-row .error{color:#ff8f8f;}
@@ -164,41 +177,97 @@ svg.path-svg{position:absolute; top:0; left:0; width:100%; height:100%; z-index:
 <div class="stars" id="stars"></div>
 <div id="app"><div style="text-align:center;padding:60px 0;color:#b8b0e0;">Загрузка…</div></div>
 
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbwNzh-WlpmVAOsUN4iwzaQu9zS46mwgQDmcX8YxCs2qFe-HKpg-HEY009SmxpOQPzHL/exec';
-const STORAGE_CURRICULUM_KEY = 'curriculum';
-const STORAGE_STUDENTS_KEY = 'students';
-const STORAGE_PROGRESS_KEY = 'progress';
 const TEACHER_PIN = '8996';
 const STUDENT_COLORS = ['#f2b84b','#5ec8d8','#c77dff','#7ee787','#ff8fa3','#7db2ff'];
 
-const DEFAULT_CURRICULUM = [
-  {id:'t1', name:'Знакомство с клавиатурой', desc:'Ориентация на клавиатуре, октавы, посадка за инструментом'},
-  {id:'t2', name:'Ноты первой октавы', desc:'Чтение и узнавание нот до-си первой октавы'},
-  {id:'t3', name:'Ритм: четверти и половинные', desc:'Счёт вслух, хлопки, простые ритмические рисунки'},
-  {id:'t4', name:'Позиция руки', desc:'Свобода запястья, округлая кисть, первые упражнения'},
-  {id:'t5', name:'Мелодия в 5 нотах', desc:'Первая пьеса одной рукой в пятипальцевой позиции'},
-  {id:'t6', name:'Штрихи: legato и staccato', desc:'Связная и отрывистая игра, контроль звука'},
-  {id:'t7', name:'Гаммы До и Соль мажор', desc:'Аппликатура, ровность звучания'},
-  {id:'t8', name:'Аккомпанемент левой рукой', desc:'Простой бас и аккордовая поддержка'},
-  {id:'t9', name:'Динамика: forte и piano', desc:'Работа над выразительностью и контрастом'},
-  {id:'t10', name:'Пьеса двумя руками', desc:'Координация рук, первая полноценная пьеса'},
-  {id:'t11', name:'Аккорды: трезвучия', desc:'Построение и игра простых трезвучий'},
-  {id:'t12', name:'Концертная пьеса', desc:'Подготовка произведения к выступлению или зачёту'},
-];
+const PLANET_SKINS = ['mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto'];
+const PLANET_LABELS = {mercury:'Меркурий', venus:'Венера', mars:'Марс', jupiter:'Юпитер', saturn:'Сатурн', uranus:'Уран', neptune:'Нептун', pluto:'Плутон'};
+const PLANET_COLORS = {mercury:0x9c9c9c, venus:0xe8c39e, mars:0xc1440e, jupiter:0xd8ca9d, saturn:0xe3c078, uranus:0x9fe3e3, neptune:0x4062bb, pluto:0xc9b29b};
+const PLANET_SIZES = {mercury:0.55, venus:0.7, mars:0.62, jupiter:1.15, saturn:1.05, uranus:0.85, neptune:0.82, pluto:0.4};
+const EARTH_COLOR = 0x3a7bd5, EARTH_SIZE = 0.9;
+const SUN_COLOR = 0xf2b84b, SUN_SIZE = 2.1;
+
+function testIdFor(moduleId){ return moduleId + '__test'; }
+
+function buildDefaultModules(){
+  return [
+    {id:'m1', name:'Нотная грамота', order:1, planet:'mercury', materials:[]},
+    {id:'m2', name:'Интервалы', order:2, planet:'venus', materials:[]},
+    {id:'m3', name:'Лад и тональность', order:3, planet:'mars', materials:[]},
+  ];
+}
+
+function buildDefaultCurriculum(){
+  const raw = {
+    m1: [
+      'Знакомство с клавиатурой. Названия нот. Регистры. Октавы. Тона и Полутона.',
+      'Нотная грамота. Скрипичный ключ. Обозначение нот на линейках. Аппликатура.',
+      'Ритм. Длительности. Размер. Метр. Темп. Пауза. Такт и затакт.',
+      'Знакомство с приёмами non legato, legato, staccato.',
+      'Особые нотные обозначения. Динамические оттенки.',
+      'Альтерация. Знаки альтерации. Ключевые и случайные знаки.',
+      'Басовый ключ. Обозначение нот на линейках. Буквенное обозначение нот.',
+      'Отработка информации. Соединение рук. Чтение с листа.',
+      'Знакомство с педалью.',
+      'Изучение композиции наизусть на выбор.',
+    ],
+    m2: [
+      'Интервалы. Названия и виды интервалов.',
+      'Количественная (ступеневая) и качественная (тоновая) характеристика интервалов.',
+      'Простые и составные интервалы.',
+      'Диатонические и хроматические интервалы. Консонансы и диссонансы.',
+      'Обращения простых и составных интервалов.',
+      'Сольфеджирование. Развитие музыкального слуха, интонации, координации слуха и голоса.',
+    ],
+    m3: [
+      'Лад. Звукоряд. Гамма.',
+      'Устойчивые и неустойчивые ступени. Тоническое трезвучие.',
+      'Мажорный лад и его виды. Строение.',
+      'Основные ступени лада. Главные ступени лада.',
+      'Минорный лад и его виды. Строение.',
+      'Тональность. Мажорный и минорные тональности.',
+      'Одноименные и параллельные тональности.',
+      'Энгармонизм тональностей.',
+      'Кварто-квинтовый круг.',
+    ],
+  };
+  const moduleNames = {m1:'Нотная грамота', m2:'Интервалы', m3:'Лад и тональность'};
+  const out = [];
+  Object.keys(raw).forEach(moduleId=>{
+    raw[moduleId].forEach((name, idx)=>{
+      out.push({id: moduleId+'t'+(idx+1), moduleId, name, desc:'', order: idx+1, isTest:false, materials:[]});
+    });
+    out.push({id: testIdFor(moduleId), moduleId, name:'Зачёт по модулю «'+moduleNames[moduleId]+'»', desc:'', order: raw[moduleId].length+1, isTest:true, materials:[]});
+  });
+  return out;
+}
 
 let state = {
+  modules: null,
   curriculum: null,
   students: null,
   progress: {}, // studentId -> {topicId: {status, stars}}
-  view: 'select', // 'select' | 'map'
+  repertoire: [], // {id,studentId,title,composer,status,notes,links,addedAt}
+  profiles: {}, // studentId -> {goals, bio, photos:[{url,caption}]}
+  view: 'select', // 'select' | 'map' | 'linkError'
   currentStudent: null,
   teacherMode: false,
-  popoverTopic: null,
-  studentLinkMode: false, // true, если открыли по персональной ссылке конкретного ученика
+  studentLinkMode: false,
 };
 
+let threeCtx = null; // { renderer, scene, camera, controls, animId, clickTargets, container, resizeHandler, clickHandler }
+
 const URL_STUDENT_ID = new URLSearchParams(window.location.search).get('student');
+
+function safeParseJSON(str, fallback){
+  if(str == null || str === '') return fallback;
+  if(typeof str !== 'string') return str;
+  try{ const v = JSON.parse(str); return v==null ? fallback : v; }catch(e){ return fallback; }
+}
 
 function studentLink(studentId){
   const url = new URL(window.location.href);
@@ -220,6 +289,8 @@ async function copyStudentLink(studentId){
 async function deleteStudent(studentId){
   state.students = state.students.filter(s => s.id !== studentId);
   delete state.progress[studentId];
+  delete state.profiles[studentId];
+  state.repertoire = state.repertoire.filter(r => r.studentId !== studentId);
   await saveAllToServer();
   render();
 }
@@ -269,11 +340,67 @@ function arrayToProgress(arr){
   return obj;
 }
 
+function profilesToArray(){
+  return Object.keys(state.profiles).map(sid => ({
+    studentId: sid,
+    goals: state.profiles[sid].goals || '',
+    bio: state.profiles[sid].bio || '',
+    photos: JSON.stringify(state.profiles[sid].photos || []),
+  }));
+}
+
+function arrayToProfiles(arr){
+  const obj = {};
+  (arr||[]).forEach(row => {
+    obj[String(row.studentId)] = {
+      goals: row.goals || '',
+      bio: row.bio || '',
+      photos: safeParseJSON(row.photos, []),
+    };
+  });
+  return obj;
+}
+
+function normalizeCurriculum(list){
+  return (list||[]).map(t => ({
+    id: String(t.id), moduleId: t.moduleId!=null ? String(t.moduleId) : '', name: t.name, desc: t.desc||'',
+    order: Number(t.order)||0, isTest: !!(t.isTest===true || t.isTest==='true' || t.isTest===1),
+    materials: safeParseJSON(t.materials, Array.isArray(t.materials)?t.materials:[]),
+  }));
+}
+
+// Data from before the module/planet redesign has no moduleId column at all —
+// treat that shape as legacy and reseed with the new default curriculum instead of using it as-is.
+function curriculumOrDefault(rawList){
+  const curr = normalizeCurriculum(rawList);
+  return (curr.length && curr.every(t=>t.moduleId)) ? curr : buildDefaultCurriculum();
+}
+
+function normalizeModules(list){
+  return (list||[]).map(m => ({
+    id: String(m.id), name: m.name, order: Number(m.order)||0,
+    planet: m.planet || PLANET_SKINS[0],
+    materials: safeParseJSON(m.materials, Array.isArray(m.materials)?m.materials:[]),
+  }));
+}
+
+function normalizeRepertoire(list){
+  return (list||[]).map(r => ({
+    id: String(r.id), studentId: String(r.studentId), title: r.title, composer: r.composer||'',
+    status: r.status || 'current', notes: r.notes||'',
+    links: safeParseJSON(r.links, Array.isArray(r.links)?r.links:[]),
+    addedAt: r.addedAt || '',
+  }));
+}
+
 function exportData(){
   const payload = {
     students: state.students,
+    modules: state.modules,
     curriculum: state.curriculum,
     progress: progressToArray(),
+    repertoire: state.repertoire,
+    profiles: profilesToArray(),
     exportedAt: new Date().toISOString()
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
@@ -293,10 +420,13 @@ function importData(file){
     try{
       const data = JSON.parse(e.target.result);
       state.students = (data.students||[]).map(s=>({id:String(s.id), name:s.name, color:s.color}));
-      state.curriculum = (data.curriculum && data.curriculum.length) ? data.curriculum.map(t=>({id:String(t.id), name:t.name, desc:t.desc})) : DEFAULT_CURRICULUM;
+      state.modules = (data.modules && data.modules.length) ? normalizeModules(data.modules) : buildDefaultModules();
+      state.curriculum = curriculumOrDefault(data.curriculum);
       state.progress = arrayToProgress(data.progress);
+      state.repertoire = normalizeRepertoire(data.repertoire);
+      state.profiles = arrayToProfiles(data.profiles);
       debugLog('✔ Файл загружен');
-      await saveAllToServer(); // заодно сохраним и в таблицу
+      await saveAllToServer();
       render();
     }catch(err){
       debugLog('⚠ Не удалось прочитать файл: ' + err.message, true);
@@ -312,8 +442,11 @@ async function saveAllToServer(){
       method:'POST',
       body: JSON.stringify({action:'saveAll', data:{
         students: state.students,
+        modules: state.modules,
         curriculum: state.curriculum,
-        progress: progressToArray()
+        progress: progressToArray(),
+        repertoire: state.repertoire,
+        profiles: profilesToArray(),
       }})
     });
     debugLog('☁ Сохранено в таблице');
@@ -328,16 +461,22 @@ async function loadAll(){
     const res = await fetch(API_URL + '?action=getAll');
     const data = await res.json();
     state.students = (data.students||[]).map(s=>({id:String(s.id), name:s.name, color:s.color}));
-    state.curriculum = (data.curriculum && data.curriculum.length) ? data.curriculum.map(t=>({id:String(t.id), name:t.name, desc:t.desc})) : DEFAULT_CURRICULUM;
+    state.modules = (data.modules && data.modules.length) ? normalizeModules(data.modules) : buildDefaultModules();
+    state.curriculum = curriculumOrDefault(data.curriculum);
     state.progress = arrayToProgress(data.progress);
+    state.repertoire = normalizeRepertoire(data.repertoire);
+    state.profiles = arrayToProfiles(data.profiles);
     debugLog('☁ Синхронизировано');
-    if(!data.curriculum || !data.curriculum.length){
-      await saveCurriculum(); // заполняем таблицу темами по умолчанию при первом запуске
+    if(!data.curriculum || !data.curriculum.length || !data.modules || !data.modules.length){
+      await saveAllToServer(); // заполняем таблицу данными по умолчанию при первом запуске / после обновления структуры
     }
   }catch(e){
-    state.curriculum = DEFAULT_CURRICULUM;
+    state.modules = buildDefaultModules();
+    state.curriculum = buildDefaultCurriculum();
     state.students = [];
     state.progress = {};
+    state.repertoire = [];
+    state.profiles = {};
     debugLog('⚠ Нет связи с таблицей: ' + e.message + ' — используй кнопку "Загрузить файл"', true);
   }
 
@@ -357,14 +496,30 @@ async function loadAll(){
 
 async function saveCurriculum(){ await saveAllToServer(); }
 async function saveStudents(){ await saveAllToServer(); }
-async function loadProgress(studentId){ if(!state.progress[studentId]) state.progress[studentId] = {}; }
+async function loadProgress(studentId){ if(!state.progress[studentId]) state.progress[studentId] = {}; if(!state.profiles[studentId]) state.profiles[studentId] = {goals:'', bio:'', photos:[]}; }
 async function saveProgress(studentId){ await saveAllToServer(); }
+async function saveRepertoire(){ await saveAllToServer(); }
+async function saveProfile(){ await saveAllToServer(); }
 
-function computeStatuses(studentId){
+/* ---------- Curriculum / progress computation ---------- */
+
+function buildOrderedCurriculum(){
+  const modules = [...state.modules].sort((a,b)=>a.order-b.order);
+  const out = [];
+  modules.forEach(m=>{
+    const topics = state.curriculum.filter(t=>t.moduleId===m.id && !t.isTest).sort((a,b)=>a.order-b.order);
+    const test = state.curriculum.find(t=>t.moduleId===m.id && t.isTest);
+    topics.forEach(t=>out.push(t));
+    if(test) out.push(test);
+  });
+  return out;
+}
+
+function computeItemStatuses(studentId){
   const prog = state.progress[studentId] || {};
-  const list = state.curriculum;
+  const list = buildOrderedCurriculum();
   let firstIncompleteFound = false;
-  return list.map((t, idx) => {
+  return list.map(t => {
     const p = prog[t.id];
     let status = 'locked';
     if(p && p.status === 'completed') status = 'completed';
@@ -373,7 +528,29 @@ function computeStatuses(studentId){
   });
 }
 
+function computeModuleStatuses(studentId){
+  const items = computeItemStatuses(studentId);
+  const modules = [...state.modules].sort((a,b)=>a.order-b.order);
+  return modules.map(m=>{
+    const mine = items.filter(i=>i.moduleId===m.id);
+    let status = 'locked';
+    if(mine.length && mine.every(i=>i.status==='completed')) status = 'completed';
+    else if(mine.some(i=>i.status==='current')) status = 'current';
+    return {...m, status, items: mine};
+  });
+}
+
+function topicsForModule(moduleId){
+  return state.curriculum.filter(t=>t.moduleId===moduleId && !t.isTest).sort((a,b)=>a.order-b.order);
+}
+function testForModule(moduleId){
+  return state.curriculum.find(t=>t.moduleId===moduleId && t.isTest);
+}
+
+/* ---------- Render dispatch ---------- */
+
 function render(){
+  disposeThree();
   const app = document.getElementById('app');
   if(state.view === 'linkError'){
     app.innerHTML = `
@@ -384,18 +561,18 @@ function render(){
       </div>`;
   }
   else if(state.view === 'select'){ app.innerHTML = renderSelect(); attachSelectHandlers(); }
-  else { app.innerHTML = renderMap(); attachMapHandlers(); drawPaths(); }
+  else { app.innerHTML = renderMap(); attachMapHandlers(); }
 }
 
 function renderSelect(){
   const cards = state.students.map((s,i) => {
-    const statuses = computeStatuses(s.id);
-    const done = statuses.filter(x=>x.status==='completed').length;
+    const items = computeItemStatuses(s.id);
+    const done = items.filter(x=>x.status==='completed').length;
     const initials = s.name.trim().split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase();
     return `<div class="student-card" data-id="${s.id}">
       <div class="student-avatar" style="background:${s.color}">${initials}</div>
       <div class="student-name">${escapeHtml(s.name)}</div>
-      <div class="student-progress">${done} / ${state.curriculum.length} тем</div>
+      <div class="student-progress">${done} / ${items.length} тем</div>
       <button class="mini-btn copy-link-btn" data-id="${s.id}" style="margin-top:8px;">🔗 ссылка</button>
       <button class="mini-btn delete-student-btn" data-id="${s.id}" data-name="${escapeAttr(s.name)}" style="margin-top:6px;">🗑 удалить</button>
     </div>`;
@@ -489,35 +666,13 @@ function attachSelectHandlers(){
   document.getElementById('newStudentName').addEventListener('keydown', e=>{ if(e.key==='Enter') confirmAdd(); });
 }
 
+/* ---------- Map / 3D system screen ---------- */
+
 function renderMap(){
   const student = state.currentStudent;
-  const statuses = computeStatuses(student.id);
-  const done = statuses.filter(x=>x.status==='completed').length;
-  const pct = Math.round((done/statuses.length)*100);
-
-  const rows = statuses.map((t, idx) => {
-    const side = idx % 2 === 0 ? 'left' : 'right';
-    let icon = '☆';
-    if(t.status==='completed') icon = '★';
-    else if(t.status==='current') icon = '●';
-    else icon = '🔒';
-    const starsStr = t.status==='completed' ? '★'.repeat(t.stars) + '☆'.repeat(3-t.stars) : '';
-    const editControls = state.teacherMode ? `
-      <div class="node-edit-controls">
-        <button class="mini-btn rename-btn" data-id="${t.id}">переим.</button>
-        <button class="mini-btn remove-btn" data-id="${t.id}">удалить</button>
-      </div>` : '';
-    return `<div class="node-row ${side}">
-      <div class="node ${t.status}" data-id="${t.id}">
-        <div class="node-orb">${icon}</div>
-        <div class="node-info">
-          <div class="node-name" data-name-id="${t.id}">${escapeHtml(t.name)}</div>
-          ${starsStr ? `<div class="node-stars">${starsStr}</div>` : ''}
-          ${editControls}
-        </div>
-      </div>
-    </div>`;
-  }).join('');
+  const items = computeItemStatuses(student.id);
+  const done = items.filter(x=>x.status==='completed').length;
+  const pct = items.length ? Math.round((done/items.length)*100) : 0;
 
   return `
     <div class="topbar">
@@ -529,44 +684,23 @@ function renderMap(){
       <div class="student-avatar" style="background:${student.color}">${student.name.trim().split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase()}</div>
       <div>
         <div class="map-title display">${escapeHtml(student.name)}</div>
-        <div class="map-sub">Путь к следующему созвездию тем</div>
+        <div class="map-sub">Солнечная система обучения</div>
       </div>
     </div>
     <div class="progress-bar-wrap">
       <div class="progress-bar-track"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
-      <div class="progress-label">${done} из ${statuses.length} тем пройдено · ${pct}%</div>
+      <div class="progress-label">${done} из ${items.length} тем пройдено · ${pct}%</div>
     </div>
-    <div class="map-wrap" id="mapWrap">
-      <svg class="path-svg" id="pathSvg"></svg>
-      ${rows}
-      ${state.teacherMode ? '<button class="add-node-btn" id="addNodeBtn">＋ Добавить тему на карту</button>' : ''}
+    <div class="system-wrap" id="systemWrap">
+      <div class="system-loading" id="systemLoading">Загрузка системы…</div>
+      <div class="lock-toast" id="lockToast"></div>
+      <div class="system-hint">Вращай — зажми и потяни. Приближай — колесо мыши. Нажми на планету, чтобы открыть модуль.</div>
     </div>
-    <div class="hint">${state.teacherMode ? 'Нажми на тему, чтобы отметить прогресс и звёзды.' : 'Открытые темы выделены золотым. Следующая тема отмечена пульсирующим кругом.'}</div>
+    <div class="map-actions-row">
+      ${state.teacherMode ? '<button class="add-node-btn" id="addModuleBtn">＋ Добавить модуль (планету)</button>' : ''}
+    </div>
+    <div class="hint">${state.teacherMode ? 'Нажми на планету, чтобы открыть темы модуля и отметить прогресс.' : 'Открытые планеты доступны для просмотра. Следующая планета — с пульсирующим свечением.'}</div>
   `;
-}
-
-function drawPaths(){
-  const svg = document.getElementById('pathSvg');
-  const wrap = document.getElementById('mapWrap');
-  if(!svg || !wrap) return;
-  const orbs = Array.from(wrap.querySelectorAll('.node-orb'));
-  if(orbs.length < 2){ svg.innerHTML=''; return; }
-  const wrapRect = wrap.getBoundingClientRect();
-  svg.setAttribute('width', wrapRect.width);
-  svg.setAttribute('height', wrapRect.height);
-  svg.setAttribute('viewBox', `0 0 ${wrapRect.width} ${wrapRect.height}`);
-
-  const points = orbs.map(o=>{
-    const r = o.getBoundingClientRect();
-    return {x: r.left - wrapRect.left + r.width/2, y: r.top - wrapRect.top + r.height/2};
-  });
-
-  let d = `M ${points[0].x} ${points[0].y}`;
-  for(let i=1;i<points.length;i++){
-    const midY = (points[i-1].y + points[i].y)/2;
-    d += ` C ${points[i-1].x} ${midY}, ${points[i].x} ${midY}, ${points[i].x} ${points[i].y}`;
-  }
-  svg.innerHTML = `<path d="${d}"></path>`;
 }
 
 function attachMapHandlers(){
@@ -579,57 +713,431 @@ function attachMapHandlers(){
     state.teacherMode = !state.teacherMode;
     render();
   });
+  const addModuleBtn = document.getElementById('addModuleBtn');
+  if(addModuleBtn) addModuleBtn.addEventListener('click', async ()=>{
+    const name = window.prompt('Название нового модуля:');
+    if(!name || !name.trim()) return;
+    const order = state.modules.length + 1;
+    const planet = PLANET_SKINS[(order-1) % PLANET_SKINS.length];
+    const id = 'm_' + Date.now();
+    state.modules.push({id, name: name.trim(), order, planet, materials:[]});
+    state.curriculum.push({id: testIdFor(id), moduleId:id, name:'Зачёт по модулю «'+name.trim()+'»', desc:'', order:1, isTest:true, materials:[]});
+    await saveCurriculum();
+    render();
+  });
 
-  document.querySelectorAll('.node').forEach(node=>{
-    node.addEventListener('click', (e)=>{
-      if(e.target.closest('.rename-btn') || e.target.closest('.remove-btn')) return;
-      const id = node.dataset.id;
-      const topic = state.curriculum.find(t=>t.id===id);
-      openPopover(topic);
+  mountThreeScene(state.currentStudent);
+}
+
+/* ---------- Three.js solar system ---------- */
+
+function makeGlowTexture(hexColor){
+  const size = 256;
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const c = new THREE.Color(hexColor);
+  const grd = ctx.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2);
+  grd.addColorStop(0, `rgba(${c.r*255},${c.g*255},${c.b*255},0.9)`);
+  grd.addColorStop(0.4, `rgba(${c.r*255},${c.g*255},${c.b*255},0.35)`);
+  grd.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = grd;
+  ctx.fillRect(0,0,size,size);
+  return new THREE.CanvasTexture(canvas);
+}
+
+function planetVisualColor(baseColor, status){
+  const c = new THREE.Color(baseColor);
+  if(status === 'locked'){ c.multiplyScalar(0.28); }
+  return c;
+}
+
+function disposeThree(){
+  if(!threeCtx) return;
+  cancelAnimationFrame(threeCtx.animId);
+  if(threeCtx.container){
+    threeCtx.container.removeEventListener('click', threeCtx.clickHandler);
+  }
+  window.removeEventListener('resize', threeCtx.resizeHandler);
+  threeCtx.renderer.dispose();
+  threeCtx = null;
+}
+
+function mountThreeScene(student){
+  const wrap = document.getElementById('systemWrap');
+  if(!wrap || typeof THREE === 'undefined') return;
+
+  const moduleStatuses = computeModuleStatuses(student.id);
+
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x0a0e27, 0.012);
+
+  const camera = new THREE.PerspectiveCamera(55, wrap.clientWidth/wrap.clientHeight, 0.1, 600);
+  camera.position.set(0, 22, 34);
+
+  const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+  renderer.setSize(wrap.clientWidth, wrap.clientHeight);
+  const loadingEl = document.getElementById('systemLoading');
+  if(loadingEl) loadingEl.remove();
+  wrap.insertBefore(renderer.domElement, wrap.firstChild);
+
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.minDistance = 6;
+  controls.maxDistance = 120;
+
+  scene.add(new THREE.AmbientLight(0x404868, 1.3));
+  const sunLight = new THREE.PointLight(0xffe9c2, 2.4, 260);
+  scene.add(sunLight);
+
+  // starfield
+  const starGeo = new THREE.BufferGeometry();
+  const starCount = 900;
+  const starPos = new Float32Array(starCount*3);
+  for(let i=0;i<starCount;i++){
+    const r = 80 + Math.random()*180;
+    const theta = Math.random()*Math.PI*2;
+    const phi = Math.acos((Math.random()*2)-1);
+    starPos[i*3] = r*Math.sin(phi)*Math.cos(theta);
+    starPos[i*3+1] = r*Math.cos(phi);
+    starPos[i*3+2] = r*Math.sin(phi)*Math.sin(theta);
+  }
+  starGeo.setAttribute('position', new THREE.BufferAttribute(starPos,3));
+  const starMat = new THREE.PointsMaterial({color:0xffffff, size:0.5, sizeAttenuation:true, transparent:true, opacity:0.75});
+  scene.add(new THREE.Points(starGeo, starMat));
+
+  // sun
+  const sunMesh = new THREE.Mesh(new THREE.SphereGeometry(SUN_SIZE, 32, 32), new THREE.MeshBasicMaterial({color:SUN_COLOR}));
+  scene.add(sunMesh);
+  const sunGlow = new THREE.Sprite(new THREE.SpriteMaterial({map:makeGlowTexture(SUN_COLOR), transparent:true, blending:THREE.AdditiveBlending, depthWrite:false}));
+  sunGlow.scale.set(SUN_SIZE*7, SUN_SIZE*7, 1);
+  scene.add(sunGlow);
+
+  const clickTargets = [];
+  const orbitables = []; // {mesh, radius, angle, speed, statusGroup}
+
+  function addOrbitRing(radius){
+    const curve = new THREE.EllipseCurve(0,0, radius, radius, 0, Math.PI*2, false, 0);
+    const pts = curve.getPoints(96).map(p=>new THREE.Vector3(p.x,0,p.y));
+    const geo = new THREE.BufferGeometry().setFromPoints(pts);
+    const mat = new THREE.LineBasicMaterial({color:0x6a5fb0, transparent:true, opacity:0.22});
+    scene.add(new THREE.LineLoop(geo, mat));
+  }
+
+  function makeBody({radius, size, color, angle, speed, status, label, userData, ring}){
+    addOrbitRing(radius);
+    const geo = new THREE.SphereGeometry(size, 28, 28);
+    const mat = new THREE.MeshStandardMaterial({
+      color: planetVisualColor(color, status),
+      roughness: 0.6, metalness: 0.1,
+      emissive: status==='completed' ? new THREE.Color(0xf2b84b) : (status==='current' ? new THREE.Color(0x2f7480) : new THREE.Color(0x000000)),
+      emissiveIntensity: status==='completed' ? 0.55 : (status==='current' ? 0.9 : 0),
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(radius*Math.cos(angle), 0, radius*Math.sin(angle));
+    scene.add(mesh);
+
+    if(ring){
+      const ringGeo = new THREE.RingGeometry(size*1.4, size*1.7, 48);
+      const ringMat = new THREE.MeshBasicMaterial({color:0xcbb789, side:THREE.DoubleSide, transparent:true, opacity:0.55});
+      const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+      ringMesh.rotation.x = Math.PI/2.4;
+      mesh.add(ringMesh);
+    }
+
+    if(status === 'completed'){
+      const haloGeo = new THREE.RingGeometry(size*1.25, size*1.35, 40);
+      const haloMat = new THREE.MeshBasicMaterial({color:0xf2b84b, side:THREE.DoubleSide, transparent:true, opacity:0.5});
+      const halo = new THREE.Mesh(haloGeo, haloMat);
+      halo.rotation.x = Math.PI/2;
+      mesh.add(halo);
+    }
+
+    const orbitEntry = {mesh, radius, angle, speed, status, pulse: status==='current'};
+    orbitables.push(orbitEntry);
+    if(userData) { mesh.userData = userData; clickTargets.push(mesh); }
+    return mesh;
+  }
+
+  // Earth — home base, always unlocked
+  makeBody({radius:5, size:EARTH_SIZE, color:EARTH_COLOR, angle:Math.PI*0.15, speed:0.06, status:'completed',
+    userData:{type:'earth'}});
+
+  // Repertoire / wishlist moons near Earth
+  makeBody({radius:2.6, size:0.28, color:0x7ee787, angle:1.1, speed:0.22, status:'completed',
+    userData:{type:'repertoire'}});
+  makeBody({radius:2.6, size:0.28, color:0xff8fa3, angle:4.2, speed:0.22, status:'completed',
+    userData:{type:'wishlist'}});
+
+  // Module planets
+  moduleStatuses.forEach((m, idx)=>{
+    const radius = 9 + idx*4.5;
+    const size = PLANET_SIZES[m.planet] || 0.6;
+    const color = PLANET_COLORS[m.planet] || 0xffffff;
+    makeBody({
+      radius, size, color,
+      angle: idx*1.7, speed: 0.045/(1+idx*0.35),
+      status: m.status,
+      ring: m.planet === 'saturn',
+      userData:{type:'module', moduleId:m.id, name:m.name, status:m.status},
+    });
+  });
+
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+  function clickHandler(ev){
+    const rect = renderer.domElement.getBoundingClientRect();
+    mouse.x = ((ev.clientX-rect.left)/rect.width)*2-1;
+    mouse.y = -((ev.clientY-rect.top)/rect.height)*2+1;
+    raycaster.setFromCamera(mouse, camera);
+    const hits = raycaster.intersectObjects(clickTargets, false);
+    if(!hits.length) return;
+    const ud = hits[0].object.userData;
+    if(ud.type === 'earth') openEarthPanel();
+    else if(ud.type === 'repertoire') openRepertoirePanel('current');
+    else if(ud.type === 'wishlist') openRepertoirePanel('wishlist');
+    else if(ud.type === 'module'){
+      if(ud.status === 'locked'){
+        const idx = moduleStatuses.findIndex(m=>m.id===ud.moduleId);
+        const prev = idx>0 ? moduleStatuses[idx-1] : null;
+        showLockToast(prev ? `Сначала пройди «${prev.name}»` : 'Этот модуль пока закрыт');
+      } else {
+        openModulePanel(ud.moduleId);
+      }
+    }
+  }
+  renderer.domElement.addEventListener('click', clickHandler);
+
+  function resizeHandler(){
+    if(!wrap.isConnected) return;
+    camera.aspect = wrap.clientWidth/wrap.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(wrap.clientWidth, wrap.clientHeight);
+  }
+  window.addEventListener('resize', resizeHandler);
+
+  const clock = new THREE.Clock();
+  function animate(){
+    const t = clock.getElapsedTime();
+    orbitables.forEach(o=>{
+      o.angle += o.speed*0.01;
+      o.mesh.position.set(o.radius*Math.cos(o.angle), 0, o.radius*Math.sin(o.angle));
+      if(o.pulse){
+        const s = 1 + Math.sin(t*2.2)*0.08;
+        o.mesh.scale.set(s,s,s);
+      }
+    });
+    controls.update();
+    renderer.render(scene, camera);
+    threeCtx.animId = requestAnimationFrame(animate);
+  }
+
+  threeCtx = {renderer, scene, camera, controls, animId:0, clickTargets, container: renderer.domElement, resizeHandler, clickHandler};
+  animate();
+}
+
+function showLockToast(msg){
+  const el = document.getElementById('lockToast');
+  if(!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._hideTimer);
+  el._hideTimer = setTimeout(()=> el.classList.remove('show'), 2200);
+}
+
+/* ---------- Module topic panel ---------- */
+
+function closeAllOverlays(){
+  document.querySelectorAll('.overlay').forEach(o=>o.remove());
+}
+
+function openModulePanel(moduleId){
+  closeAllOverlays();
+  const student = state.currentStudent;
+  const mod = state.modules.find(m=>m.id===moduleId);
+  if(!mod) return;
+  const itemStatuses = computeItemStatuses(student.id).filter(i=>i.moduleId===moduleId);
+
+  const rows = itemStatuses.map(t=>{
+    let icon = '☆';
+    if(t.status==='completed') icon = t.isTest ? '✓' : '★';
+    else if(t.status==='current') icon = t.isTest ? '📝' : '●';
+    else icon = '🔒';
+    const starsStr = (!t.isTest && t.status==='completed') ? '★'.repeat(t.stars) + '☆'.repeat(3-t.stars) : '';
+    const materialsHtml = (t.materials && t.materials.length) ? `<div class="t-materials">${t.materials.map(m=>`<a href="${escapeAttr(m.url)}" target="_blank" rel="noopener">${escapeHtml(m.label||m.url)}</a>`).join('')}</div>` : '';
+    const editControls = (state.teacherMode && !t.isTest) ? `
+      <div class="t-edit">
+        <button class="mini-btn rename-topic-btn" data-id="${t.id}">переим.</button>
+        <button class="mini-btn material-topic-btn" data-id="${t.id}">📎</button>
+        <button class="mini-btn remove-topic-btn" data-id="${t.id}">✕</button>
+      </div>` : '';
+    return `<div class="topic-row ${t.status} ${t.isTest?'test-row':''}" data-id="${t.id}" data-test="${t.isTest?'1':'0'}" data-locked="${t.status==='locked'?'1':'0'}">
+      <div class="t-icon">${icon}</div>
+      <div class="t-body">
+        <div class="t-name" data-name-id="${t.id}">${escapeHtml(t.name)}</div>
+        ${starsStr ? `<div class="t-stars">${starsStr}</div>` : ''}
+        ${materialsHtml}
+      </div>
+      ${editControls}
+    </div>`;
+  }).join('');
+
+  const materialsHtml = (mod.materials && mod.materials.length) ? `<div class="t-materials">${mod.materials.map(m=>`<a href="${escapeAttr(m.url)}" target="_blank" rel="noopener">${escapeHtml(m.label||m.url)}</a>`).join('')}</div>` : '';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.innerHTML = `
+    <div class="popover wide">
+      <div class="panel-header">
+        <div>
+          <h3 class="display" data-module-name>${escapeHtml(mod.name)}</h3>
+          <div class="panel-sub">${PLANET_LABELS[mod.planet]||''} · модуль обучения</div>
+        </div>
+        <button class="panel-close" id="closeModulePanel">✕</button>
+      </div>
+      ${materialsHtml}
+      ${state.teacherMode ? `<div class="mini-btn-row">
+        <button class="mini-btn" id="renameModuleBtn">переим. модуль</button>
+        <button class="mini-btn" id="materialModuleBtn">📎 материал</button>
+        <button class="mini-btn" id="addTopicBtn">＋ тема</button>
+        <button class="mini-btn" id="removeModuleBtn">✕ удалить модуль</button>
+      </div>` : ''}
+      <div>${rows}</div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) overlay.remove(); });
+  overlay.querySelector('#closeModulePanel').addEventListener('click', ()=> overlay.remove());
+
+  overlay.querySelectorAll('.topic-row').forEach(row=>{
+    row.addEventListener('click', (e)=>{
+      if(e.target.closest('.t-edit')) return;
+      if(row.dataset.locked==='1') return;
+      const id = row.dataset.id;
+      if(row.dataset.test==='1'){
+        toggleTestPass(student.id, id, moduleId);
+      } else {
+        const topic = state.curriculum.find(t=>t.id===id);
+        openTopicEditor(topic, moduleId);
+      }
     });
   });
 
   if(state.teacherMode){
-    document.querySelectorAll('.rename-btn').forEach(btn=>{
+    overlay.querySelectorAll('.rename-topic-btn').forEach(btn=>{
       btn.addEventListener('click', (e)=>{
         e.stopPropagation();
         const id = btn.dataset.id;
-        const el = document.querySelector(`[data-name-id="${id}"]`);
+        const el = overlay.querySelector(`[data-name-id="${id}"]`);
         const topic = state.curriculum.find(t=>t.id===id);
         el.outerHTML = `<input class="node-input" data-name-input="${id}" value="${escapeAttr(topic.name)}">`;
-        const input = document.querySelector(`[data-name-input="${id}"]`);
+        const input = overlay.querySelector(`[data-name-input="${id}"]`);
         input.focus(); input.select();
         const commit = async ()=>{
           topic.name = input.value.trim() || topic.name;
           await saveCurriculum();
+          overlay.remove();
           render();
+          openModulePanel(moduleId);
         };
         input.addEventListener('keydown', ev=>{ if(ev.key==='Enter') commit(); });
         input.addEventListener('blur', commit);
       });
     });
-    document.querySelectorAll('.remove-btn').forEach(btn=>{
+    overlay.querySelectorAll('.material-topic-btn').forEach(btn=>{
       btn.addEventListener('click', async (e)=>{
         e.stopPropagation();
-        const id = btn.dataset.id;
-        state.curriculum = state.curriculum.filter(t=>t.id!==id);
+        const topic = state.curriculum.find(t=>t.id===btn.dataset.id);
+        if(!addMaterialPrompt(topic)) return;
         await saveCurriculum();
+        overlay.remove();
         render();
+        openModulePanel(moduleId);
       });
     });
-    const addBtn = document.getElementById('addNodeBtn');
-    if(addBtn) addBtn.addEventListener('click', async ()=>{
-      const id = 't_'+Date.now();
-      state.curriculum.push({id, name:'Новая тема', desc:''});
+    overlay.querySelectorAll('.remove-topic-btn').forEach(btn=>{
+      btn.addEventListener('click', async (e)=>{
+        e.stopPropagation();
+        state.curriculum = state.curriculum.filter(t=>t.id!==btn.dataset.id);
+        await saveCurriculum();
+        overlay.remove();
+        render();
+        openModulePanel(moduleId);
+      });
+    });
+    const addTopicBtn = overlay.querySelector('#addTopicBtn');
+    if(addTopicBtn) addTopicBtn.addEventListener('click', async ()=>{
+      const name = window.prompt('Название новой темы:');
+      if(!name || !name.trim()) return;
+      const existingTopics = topicsForModule(moduleId);
+      const test = testForModule(moduleId);
+      const newOrder = existingTopics.length + 1;
+      if(test) test.order = newOrder + 1;
+      const id = 't_' + Date.now();
+      state.curriculum.push({id, moduleId, name:name.trim(), desc:'', order:newOrder, isTest:false, materials:[]});
       await saveCurriculum();
+      overlay.remove();
+      render();
+      openModulePanel(moduleId);
+    });
+    const renameModuleBtn = overlay.querySelector('#renameModuleBtn');
+    if(renameModuleBtn) renameModuleBtn.addEventListener('click', async ()=>{
+      const name = window.prompt('Новое название модуля:', mod.name);
+      if(!name || !name.trim()) return;
+      mod.name = name.trim();
+      await saveCurriculum();
+      overlay.remove();
+      render();
+      openModulePanel(moduleId);
+    });
+    const materialModuleBtn = overlay.querySelector('#materialModuleBtn');
+    if(materialModuleBtn) materialModuleBtn.addEventListener('click', async ()=>{
+      if(!addMaterialPrompt(mod)) return;
+      await saveCurriculum();
+      overlay.remove();
+      render();
+      openModulePanel(moduleId);
+    });
+    const removeModuleBtn = overlay.querySelector('#removeModuleBtn');
+    if(removeModuleBtn) removeModuleBtn.addEventListener('click', async ()=>{
+      const ok = window.confirm(`Удалить модуль «${mod.name}» вместе со всеми его темами?`);
+      if(!ok) return;
+      state.curriculum = state.curriculum.filter(t=>t.moduleId!==moduleId);
+      state.modules = state.modules.filter(m=>m.id!==moduleId);
+      await saveCurriculum();
+      overlay.remove();
       render();
     });
   }
-
-  window.addEventListener('resize', drawPaths);
 }
 
-function openPopover(topic){
+function addMaterialPrompt(target){
+  const label = window.prompt('Название материала:');
+  if(label===null) return false;
+  const url = window.prompt('Ссылка (URL):');
+  if(url===null || !url.trim()) return false;
+  if(!target.materials) target.materials = [];
+  target.materials.push({label: label.trim()||url.trim(), url: url.trim()});
+  return true;
+}
+
+async function toggleTestPass(studentId, testId, moduleId){
+  const prog = state.progress[studentId] || {};
+  const current = prog[testId];
+  if(current && current.status==='completed'){
+    delete prog[testId];
+  } else {
+    prog[testId] = {status:'completed', stars:0};
+  }
+  state.progress[studentId] = prog;
+  await saveProgress(studentId);
+  render();
+  openModulePanel(moduleId);
+}
+
+function openTopicEditor(topic, moduleId){
   const student = state.currentStudent;
   const prog = state.progress[student.id] || {};
   const current = prog[topic.id] || {status:'locked', stars:0};
@@ -688,8 +1196,173 @@ function openPopover(topic){
       await saveProgress(student.id);
       overlay.remove();
       render();
+      openModulePanel(moduleId);
     });
   }
+}
+
+/* ---------- Earth / profile panel ---------- */
+
+function openEarthPanel(){
+  closeAllOverlays();
+  const student = state.currentStudent;
+  if(!state.profiles[student.id]) state.profiles[student.id] = {goals:'', bio:'', photos:[]};
+  const profile = state.profiles[student.id];
+
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.innerHTML = `
+    <div class="popover wide">
+      <div class="panel-header">
+        <div>
+          <h3 class="display">🌍 База ученика</h3>
+          <div class="panel-sub">${escapeHtml(student.name)}</div>
+        </div>
+        <button class="panel-close" id="closeEarthPanel">✕</button>
+      </div>
+      <div class="field-label">Цели обучения</div>
+      ${state.teacherMode
+        ? `<textarea class="field-textarea" id="goalsInput" placeholder="Например: выучить произведение к концерту в мае">${escapeHtml(profile.goals)}</textarea>`
+        : `<div class="desc">${escapeHtml(profile.goals) || 'Пока не заполнено.'}</div>`}
+      <div class="field-label">О себе</div>
+      ${state.teacherMode
+        ? `<textarea class="field-textarea" id="bioInput" placeholder="Возраст, интересы, особенности обучения">${escapeHtml(profile.bio)}</textarea>`
+        : `<div class="desc">${escapeHtml(profile.bio) || 'Пока не заполнено.'}</div>`}
+      <div class="field-label">Фото с выступлений</div>
+      <div class="photo-grid" id="photoGrid">
+        ${(profile.photos||[]).map((p,idx)=>`
+          <div class="photo-item">
+            <img src="${escapeAttr(p.url)}" alt="${escapeAttr(p.caption||'')}" onerror="this.style.opacity=0.15">
+            ${p.caption ? `<div class="photo-caption">${escapeHtml(p.caption)}</div>` : ''}
+            ${state.teacherMode ? `<button class="photo-remove" data-idx="${idx}">✕</button>` : ''}
+          </div>
+        `).join('')}
+      </div>
+      ${state.teacherMode ? '<button class="mini-btn" id="addPhotoBtn" style="margin-top:10px;">＋ добавить фото (ссылка)</button>' : ''}
+      ${state.teacherMode ? `<div class="popover-actions" style="margin-top:18px;">
+        <button class="btn-ghost" id="cancelEarth">Отмена</button>
+        <button class="btn-primary" id="saveEarth">Сохранить</button>
+      </div>` : ''}
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) overlay.remove(); });
+  overlay.querySelector('#closeEarthPanel').addEventListener('click', ()=> overlay.remove());
+  const cancelBtn = overlay.querySelector('#cancelEarth');
+  if(cancelBtn) cancelBtn.addEventListener('click', ()=> overlay.remove());
+
+  if(state.teacherMode){
+    overlay.querySelectorAll('.photo-remove').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        profile.photos.splice(parseInt(btn.dataset.idx),1);
+        overlay.remove();
+        openEarthPanel();
+      });
+    });
+    const addPhotoBtn = overlay.querySelector('#addPhotoBtn');
+    if(addPhotoBtn) addPhotoBtn.addEventListener('click', ()=>{
+      const url = window.prompt('Ссылка на фото (Google Фото/Диск):');
+      if(!url || !url.trim()) return;
+      const caption = window.prompt('Подпись (необязательно):') || '';
+      profile.photos = profile.photos || [];
+      profile.photos.push({url:url.trim(), caption:caption.trim()});
+      overlay.remove();
+      openEarthPanel();
+    });
+    overlay.querySelector('#saveEarth').addEventListener('click', async ()=>{
+      profile.goals = overlay.querySelector('#goalsInput').value.trim();
+      profile.bio = overlay.querySelector('#bioInput').value.trim();
+      state.profiles[student.id] = profile;
+      await saveProfile();
+      overlay.remove();
+    });
+  }
+}
+
+/* ---------- Repertoire / wishlist panel ---------- */
+
+function openRepertoirePanel(initialTab){
+  closeAllOverlays();
+  const student = state.currentStudent;
+  let activeTab = initialTab || 'current';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.innerHTML = `<div class="popover wide"></div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) overlay.remove(); });
+
+  function renderPanel(){
+    const items = state.repertoire.filter(r=>r.studentId===student.id && r.status===activeTab);
+    const tabLabels = {current:'Играю сейчас', wishlist:'Хочу выучить', performed:'Исполнено'};
+    const list = items.length ? items.map(r=>`
+      <div class="rep-item" data-id="${r.id}">
+        <div class="rep-title">${escapeHtml(r.title)}</div>
+        ${r.composer ? `<div class="rep-composer">${escapeHtml(r.composer)}</div>` : ''}
+        ${r.notes ? `<div class="rep-notes">${escapeHtml(r.notes)}</div>` : ''}
+        ${(r.links&&r.links.length) ? `<div class="rep-links">${r.links.map(l=>`<a href="${escapeAttr(l.url)}" target="_blank" rel="noopener">${escapeHtml(l.label||l.url)}</a>`).join('')}</div>` : ''}
+        ${state.teacherMode ? `<div class="mini-btn-row" style="margin-top:10px; margin-bottom:0;">
+          ${activeTab!=='current' ? `<button class="mini-btn rep-move" data-id="${r.id}" data-to="current">→ играю</button>` : ''}
+          ${activeTab!=='wishlist' ? `<button class="mini-btn rep-move" data-id="${r.id}" data-to="wishlist">→ вишлист</button>` : ''}
+          ${activeTab!=='performed' ? `<button class="mini-btn rep-move" data-id="${r.id}" data-to="performed">→ исполнено</button>` : ''}
+          <button class="mini-btn rep-remove" data-id="${r.id}">✕ удалить</button>
+        </div>` : ''}
+      </div>
+    `).join('') : `<div class="rep-empty">Пока пусто.</div>`;
+
+    overlay.querySelector('.popover').innerHTML = `
+      <div class="panel-header">
+        <div>
+          <h3 class="display">🎵 Репертуар</h3>
+          <div class="panel-sub">${escapeHtml(student.name)}</div>
+        </div>
+        <button class="panel-close" id="closeRepPanel">✕</button>
+      </div>
+      <div class="repertoire-tabs">
+        <button data-tab="current" class="${activeTab==='current'?'active':''}">${tabLabels.current}</button>
+        <button data-tab="wishlist" class="${activeTab==='wishlist'?'active':''}">${tabLabels.wishlist}</button>
+        <button data-tab="performed" class="${activeTab==='performed'?'active':''}">${tabLabels.performed}</button>
+      </div>
+      ${state.teacherMode ? '<button class="mini-btn" id="addRepBtn" style="margin-bottom:14px;">＋ добавить произведение</button>' : ''}
+      <div>${list}</div>
+    `;
+    wire();
+  }
+
+  function wire(){
+    overlay.querySelector('#closeRepPanel').addEventListener('click', ()=> overlay.remove());
+    overlay.querySelectorAll('.repertoire-tabs button').forEach(btn=>{
+      btn.addEventListener('click', ()=>{ activeTab = btn.dataset.tab; renderPanel(); });
+    });
+    const addBtn = overlay.querySelector('#addRepBtn');
+    if(addBtn) addBtn.addEventListener('click', async ()=>{
+      const title = window.prompt('Название произведения:');
+      if(!title || !title.trim()) return;
+      const composer = window.prompt('Композитор (необязательно):') || '';
+      const id = 'r_' + Date.now();
+      state.repertoire.push({id, studentId:student.id, title:title.trim(), composer:composer.trim(), status:activeTab, notes:'', links:[], addedAt:new Date().toISOString()});
+      await saveRepertoire();
+      renderPanel();
+    });
+    if(state.teacherMode){
+      overlay.querySelectorAll('.rep-move').forEach(btn=>{
+        btn.addEventListener('click', async ()=>{
+          const item = state.repertoire.find(r=>r.id===btn.dataset.id);
+          if(item){ item.status = btn.dataset.to; await saveRepertoire(); }
+          renderPanel();
+        });
+      });
+      overlay.querySelectorAll('.rep-remove').forEach(btn=>{
+        btn.addEventListener('click', async ()=>{
+          state.repertoire = state.repertoire.filter(r=>r.id!==btn.dataset.id);
+          await saveRepertoire();
+          renderPanel();
+        });
+      });
+    }
+  }
+
+  renderPanel();
 }
 
 function verifyTeacherPin(){
