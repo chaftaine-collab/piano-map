@@ -872,7 +872,8 @@ function makeMilkyWayTexture(){
   return new THREE.CanvasTexture(canvas);
 }
 
-function makeLabelSprite(text, dim){
+function makeLabelSprite(rawText, dim){
+  const text = rawText.toUpperCase();
   const pad = 10, fontSize = 40;
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
