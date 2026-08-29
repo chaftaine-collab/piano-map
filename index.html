@@ -199,6 +199,10 @@ function buildDefaultModules(){
     {id:'m1', name:'Нотная грамота', order:1, planet:'mercury', materials:[]},
     {id:'m2', name:'Интервалы', order:2, planet:'venus', materials:[]},
     {id:'m3', name:'Лад и тональность', order:3, planet:'mars', materials:[]},
+    {id:'m4', name:'Модуль 4', order:4, planet:'jupiter', materials:[]},
+    {id:'m5', name:'Модуль 5', order:5, planet:'saturn', materials:[]},
+    {id:'m6', name:'Модуль 6', order:6, planet:'uranus', materials:[]},
+    {id:'m7', name:'Модуль 7', order:7, planet:'neptune', materials:[]},
   ];
 }
 
@@ -1020,11 +1024,9 @@ function mountThreeScene(student){
     texture: makeEarthTexture(), clouds: makeCloudsTexture(), spin:0.6,
     userData:{type:'earth'}});
 
-  // Repertoire / wishlist moons near Earth
-  makeBody({radius:2.6, size:0.28, color:0x7ee787, angle:1.1, speed:0.22, status:'completed', spin:0.3,
+  // Repertoire moon near Earth (opens a panel with all three tabs — играю/мечтаю/выучено)
+  makeBody({radius:2.6, size:0.3, color:0x7ee787, angle:1.1, speed:0.22, status:'completed', spin:0.3,
     userData:{type:'repertoire'}});
-  makeBody({radius:2.6, size:0.28, color:0xff8fa3, angle:4.2, speed:0.22, status:'completed', spin:0.3,
-    userData:{type:'wishlist'}});
 
   // Module planets
   moduleStatuses.forEach((m, idx)=>{
@@ -1055,7 +1057,6 @@ function mountThreeScene(student){
     const ud = hits[0].object.userData;
     if(ud.type === 'earth') openEarthPanel();
     else if(ud.type === 'repertoire') openRepertoirePanel('current');
-    else if(ud.type === 'wishlist') openRepertoirePanel('wishlist');
     else if(ud.type === 'module'){
       if(ud.status === 'locked'){
         const idx = moduleStatuses.findIndex(m=>m.id===ud.moduleId);
