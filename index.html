@@ -891,7 +891,7 @@ function makeNebulaSprite(colorHex, opacity){
   grd.addColorStop(1, rgbaOf(c,0));
   ctx.fillStyle=grd; ctx.fillRect(0,0,size,size);
   const tex = new THREE.CanvasTexture(canvas);
-  return new THREE.Sprite(new THREE.SpriteMaterial({map:tex, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false}));
+  return new THREE.Sprite(new THREE.SpriteMaterial({map:tex, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false, fog:false}));
 }
 
 function makeLabelSprite(rawText, dim){
@@ -937,7 +937,7 @@ function addStarLayer(scene, count, opts){
   }
   geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
   geo.setAttribute('color', new THREE.BufferAttribute(col,3));
-  const mat = new THREE.PointsMaterial({size:opts.size, sizeAttenuation:true, transparent:true, opacity:opts.opacity, vertexColors:true, blending:THREE.AdditiveBlending, depthWrite:false});
+  const mat = new THREE.PointsMaterial({size:opts.size, sizeAttenuation:true, transparent:true, opacity:opts.opacity, vertexColors:true, blending:THREE.AdditiveBlending, depthWrite:false, fog:false});
   scene.add(new THREE.Points(geo, mat));
 }
 
@@ -998,9 +998,10 @@ function mountThreeScene(student){
 
   // soft nebula clouds for extra color in the deep background
   const nebulaSpecs = [
-    {color:0x8f5fe8, opacity:0.5, pos:[-130,40,-90], scale:140},
-    {color:0x4fb8c9, opacity:0.45, pos:[150,-30,-120], scale:160},
-    {color:0xe86fa0, opacity:0.35, pos:[60,80,140], scale:120},
+    {color:0x9d5fef, opacity:0.85, pos:[-70,32,-60], scale:110},
+    {color:0x4fc9e8, opacity:0.8, pos:[85,-22,-70], scale:120},
+    {color:0xef6fa8, opacity:0.65, pos:[40,55,75], scale:95},
+    {color:0x6fef9d, opacity:0.5, pos:[-90,-40,60], scale:90},
   ];
   nebulaSpecs.forEach(n=>{
     const sprite = makeNebulaSprite(n.color, n.opacity);
@@ -1011,7 +1012,7 @@ function mountThreeScene(student){
 
   const mwMesh = new THREE.Mesh(
     new THREE.PlaneGeometry(500, 140),
-    new THREE.MeshBasicMaterial({map:makeMilkyWayTexture(), transparent:true, opacity:0.5, side:THREE.DoubleSide, blending:THREE.AdditiveBlending, depthWrite:false})
+    new THREE.MeshBasicMaterial({map:makeMilkyWayTexture(), transparent:true, opacity:0.5, side:THREE.DoubleSide, blending:THREE.AdditiveBlending, depthWrite:false, fog:false})
   );
   mwMesh.rotation.x = Math.PI/2.3;
   mwMesh.rotation.z = 0.6;
