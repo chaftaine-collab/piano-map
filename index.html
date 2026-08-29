@@ -1207,7 +1207,8 @@ function openModulePanel(moduleId){
     const editControls = (state.teacherMode && !t.isTest) ? `
       <div class="t-edit">
         <button class="mini-btn rename-topic-btn" data-id="${t.id}">переим.</button>
-        <button class="mini-btn material-topic-btn" data-id="${t.id}">📎</button>
+        <button class="mini-btn material-topic-btn" data-id="${t.id}">🔗</button>
+        <button class="mini-btn file-topic-btn" data-id="${t.id}">📄</button>
         <button class="mini-btn remove-topic-btn" data-id="${t.id}">✕</button>
       </div>` : '';
     return `<div class="topic-row ${t.status} ${t.isTest?'test-row':''}" data-id="${t.id}" data-test="${t.isTest?'1':'0'}" data-locked="${t.status==='locked'?'1':'0'}">
@@ -1237,7 +1238,8 @@ function openModulePanel(moduleId){
       ${materialsHtml}
       ${state.teacherMode ? `<div class="mini-btn-row">
         <button class="mini-btn" id="renameModuleBtn">переим. модуль</button>
-        <button class="mini-btn" id="materialModuleBtn">📎 материал</button>
+        <button class="mini-btn" id="materialModuleBtn">🔗 ссылка</button>
+        <button class="mini-btn" id="fileModuleBtn">📄 файл</button>
         <button class="mini-btn" id="addTopicBtn">＋ тема</button>
         <button class="mini-btn" id="removeModuleBtn">✕ удалить модуль</button>
       </div>` : ''}
@@ -1294,6 +1296,21 @@ function openModulePanel(moduleId){
         saveCurriculum();
       });
     });
+    overlay.querySelectorAll('.file-topic-btn').forEach(btn=>{
+      btn.addEventListener('click', async (e)=>{
+        e.stopPropagation();
+        const topic = state.curriculum.find(t=>t.id===btn.dataset.id);
+        const prevText = btn.textContent;
+        btn.textContent = '…'; btn.disabled = true;
+        const ok = await uploadMaterialFile(topic);
+        btn.textContent = prevText; btn.disabled = false;
+        if(!ok) return;
+        overlay.remove();
+        render();
+        openModulePanel(moduleId);
+        saveCurriculum();
+      });
+    });
     overlay.querySelectorAll('.remove-topic-btn').forEach(btn=>{
       btn.addEventListener('click', (e)=>{
         e.stopPropagation();
@@ -1337,6 +1354,18 @@ function openModulePanel(moduleId){
       openModulePanel(moduleId);
       saveCurriculum();
     });
+    const fileModuleBtn = overlay.querySelector('#fileModuleBtn');
+    if(fileModuleBtn) fileModuleBtn.addEventListener('click', async ()=>{
+      const prevText = fileModuleBtn.textContent;
+      fileModuleBtn.textContent = 'Загрузка…'; fileModuleBtn.disabled = true;
+      const ok = await uploadMaterialFile(mod);
+      fileModuleBtn.textContent = prevText; fileModuleBtn.disabled = false;
+      if(!ok) return;
+      overlay.remove();
+      render();
+      openModulePanel(moduleId);
+      saveCurriculum();
+    });
     const removeModuleBtn = overlay.querySelector('#removeModuleBtn');
     if(removeModuleBtn) removeModuleBtn.addEventListener('click', ()=>{
       const ok = window.confirm(`Удалить модуль «${mod.name}» вместе со всеми его темами?`);
@@ -1358,6 +1387,59 @@ function addMaterialPrompt(target){
   if(!target.materials) target.materials = [];
   target.materials.push({label: label.trim()||url.trim(), url: url.trim()});
   return true;
+}
+
+function pickFile(accept){
+  return new Promise(resolve=>{
+    const input = document.createElement('input');
+    input.type = 'file';
+    if(accept) input.accept = accept;
+    input.style.display = 'none';
+    document.body.appendChild(input);
+    input.addEventListener('change', ()=>{
+      resolve(input.files[0] || null);
+      input.remove();
+    });
+    input.click();
+  });
+}
+
+function fileToBase64(file){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = ()=> resolve(String(reader.result).split(',')[1] || '');
+    reader.onerror = ()=> reject(reader.error || new Error('Ошибка чтения файла'));
+    reader.readAsDataURL(file);
+  });
+}
+
+const MAX_MATERIAL_FILE_MB = 15;
+
+async function uploadMaterialFile(target){
+  const file = await pickFile('.pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,image/*,application/pdf');
+  if(!file) return false;
+  if(file.size > MAX_MATERIAL_FILE_MB*1024*1024){
+    alert(`Файл слишком большой (максимум ${MAX_MATERIAL_FILE_MB} МБ). Загрузи его на Google Диск и добавь ссылкой.`);
+    return false;
+  }
+  debugLog('Загрузка файла…');
+  try{
+    const base64Content = await fileToBase64(file);
+    const res = await fetch(API_URL, {
+      method:'POST',
+      body: JSON.stringify({action:'uploadFile', data:{filename:file.name, mimeType:file.type, base64Content}})
+    });
+    const json = await res.json();
+    if(!json.ok) throw new Error(json.error || 'неизвестная ошибка');
+    if(!target.materials) target.materials = [];
+    target.materials.push({label: file.name, url: json.url});
+    debugLog('✔ Файл загружен на Диск');
+    return true;
+  }catch(e){
+    alert('Не удалось загрузить файл: ' + e.message);
+    debugLog('⚠ Не удалось загрузить файл: ' + e.message, true);
+    return false;
+  }
 }
 
 function toggleTestPass(studentId, testId, moduleId){
