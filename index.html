@@ -291,8 +291,8 @@ async function deleteStudent(studentId){
   delete state.progress[studentId];
   delete state.profiles[studentId];
   state.repertoire = state.repertoire.filter(r => r.studentId !== studentId);
-  await saveAllToServer();
   render();
+  saveAllToServer();
 }
 
 function starsField(){
@@ -655,12 +655,12 @@ function attachSelectHandlers(){
     const id = 's_' + Date.now();
     const newStudent = {id, name, color};
     state.students.push(newStudent);
-    await saveStudents();
     state.currentStudent = newStudent;
     await loadProgress(id);
     state.teacherMode = true;
     state.view = 'map';
     render();
+    saveStudents();
   };
   document.getElementById('confirmAddStudent').addEventListener('click', confirmAdd);
   document.getElementById('newStudentName').addEventListener('keydown', e=>{ if(e.key==='Enter') confirmAdd(); });
@@ -722,8 +722,8 @@ function attachMapHandlers(){
     const id = 'm_' + Date.now();
     state.modules.push({id, name: name.trim(), order, planet, materials:[]});
     state.curriculum.push({id: testIdFor(id), moduleId:id, name:'Зачёт по модулю «'+name.trim()+'»', desc:'', order:1, isTest:true, materials:[]});
-    await saveCurriculum();
     render();
+    saveCurriculum();
   });
 
   mountThreeScene(state.currentStudent);
@@ -1035,40 +1035,40 @@ function openModulePanel(moduleId){
         el.outerHTML = `<input class="node-input" data-name-input="${id}" value="${escapeAttr(topic.name)}">`;
         const input = overlay.querySelector(`[data-name-input="${id}"]`);
         input.focus(); input.select();
-        const commit = async ()=>{
+        const commit = ()=>{
           topic.name = input.value.trim() || topic.name;
-          await saveCurriculum();
           overlay.remove();
           render();
           openModulePanel(moduleId);
+          saveCurriculum();
         };
         input.addEventListener('keydown', ev=>{ if(ev.key==='Enter') commit(); });
         input.addEventListener('blur', commit);
       });
     });
     overlay.querySelectorAll('.material-topic-btn').forEach(btn=>{
-      btn.addEventListener('click', async (e)=>{
+      btn.addEventListener('click', (e)=>{
         e.stopPropagation();
         const topic = state.curriculum.find(t=>t.id===btn.dataset.id);
         if(!addMaterialPrompt(topic)) return;
-        await saveCurriculum();
         overlay.remove();
         render();
         openModulePanel(moduleId);
+        saveCurriculum();
       });
     });
     overlay.querySelectorAll('.remove-topic-btn').forEach(btn=>{
-      btn.addEventListener('click', async (e)=>{
+      btn.addEventListener('click', (e)=>{
         e.stopPropagation();
         state.curriculum = state.curriculum.filter(t=>t.id!==btn.dataset.id);
-        await saveCurriculum();
         overlay.remove();
         render();
         openModulePanel(moduleId);
+        saveCurriculum();
       });
     });
     const addTopicBtn = overlay.querySelector('#addTopicBtn');
-    if(addTopicBtn) addTopicBtn.addEventListener('click', async ()=>{
+    if(addTopicBtn) addTopicBtn.addEventListener('click', ()=>{
       const name = window.prompt('Название новой темы:');
       if(!name || !name.trim()) return;
       const existingTopics = topicsForModule(moduleId);
@@ -1077,38 +1077,38 @@ function openModulePanel(moduleId){
       if(test) test.order = newOrder + 1;
       const id = 't_' + Date.now();
       state.curriculum.push({id, moduleId, name:name.trim(), desc:'', order:newOrder, isTest:false, materials:[]});
-      await saveCurriculum();
       overlay.remove();
       render();
       openModulePanel(moduleId);
+      saveCurriculum();
     });
     const renameModuleBtn = overlay.querySelector('#renameModuleBtn');
-    if(renameModuleBtn) renameModuleBtn.addEventListener('click', async ()=>{
+    if(renameModuleBtn) renameModuleBtn.addEventListener('click', ()=>{
       const name = window.prompt('Новое название модуля:', mod.name);
       if(!name || !name.trim()) return;
       mod.name = name.trim();
-      await saveCurriculum();
       overlay.remove();
       render();
       openModulePanel(moduleId);
+      saveCurriculum();
     });
     const materialModuleBtn = overlay.querySelector('#materialModuleBtn');
-    if(materialModuleBtn) materialModuleBtn.addEventListener('click', async ()=>{
+    if(materialModuleBtn) materialModuleBtn.addEventListener('click', ()=>{
       if(!addMaterialPrompt(mod)) return;
-      await saveCurriculum();
       overlay.remove();
       render();
       openModulePanel(moduleId);
+      saveCurriculum();
     });
     const removeModuleBtn = overlay.querySelector('#removeModuleBtn');
-    if(removeModuleBtn) removeModuleBtn.addEventListener('click', async ()=>{
+    if(removeModuleBtn) removeModuleBtn.addEventListener('click', ()=>{
       const ok = window.confirm(`Удалить модуль «${mod.name}» вместе со всеми его темами?`);
       if(!ok) return;
       state.curriculum = state.curriculum.filter(t=>t.moduleId!==moduleId);
       state.modules = state.modules.filter(m=>m.id!==moduleId);
-      await saveCurriculum();
       overlay.remove();
       render();
+      saveCurriculum();
     });
   }
 }
@@ -1123,7 +1123,7 @@ function addMaterialPrompt(target){
   return true;
 }
 
-async function toggleTestPass(studentId, testId, moduleId){
+function toggleTestPass(studentId, testId, moduleId){
   const prog = state.progress[studentId] || {};
   const current = prog[testId];
   if(current && current.status==='completed'){
@@ -1132,9 +1132,9 @@ async function toggleTestPass(studentId, testId, moduleId){
     prog[testId] = {status:'completed', stars:0};
   }
   state.progress[studentId] = prog;
-  await saveProgress(studentId);
   render();
   openModulePanel(moduleId);
+  saveProgress(studentId);
 }
 
 function openTopicEditor(topic, moduleId){
@@ -1190,13 +1190,13 @@ function openTopicEditor(topic, moduleId){
         });
       });
     });
-    overlay.querySelector('#savePop').addEventListener('click', async ()=>{
+    overlay.querySelector('#savePop').addEventListener('click', ()=>{
       prog[topic.id] = {status: selectedStatus, stars: selectedStatus==='completed' ? selectedStars : 0};
       state.progress[student.id] = prog;
-      await saveProgress(student.id);
       overlay.remove();
       render();
       openModulePanel(moduleId);
+      saveProgress(student.id);
     });
   }
 }
@@ -1269,12 +1269,12 @@ function openEarthPanel(){
       overlay.remove();
       openEarthPanel();
     });
-    overlay.querySelector('#saveEarth').addEventListener('click', async ()=>{
+    overlay.querySelector('#saveEarth').addEventListener('click', ()=>{
       profile.goals = overlay.querySelector('#goalsInput').value.trim();
       profile.bio = overlay.querySelector('#bioInput').value.trim();
       state.profiles[student.id] = profile;
-      await saveProfile();
       overlay.remove();
+      saveProfile();
     });
   }
 }
@@ -1335,28 +1335,29 @@ function openRepertoirePanel(initialTab){
       btn.addEventListener('click', ()=>{ activeTab = btn.dataset.tab; renderPanel(); });
     });
     const addBtn = overlay.querySelector('#addRepBtn');
-    if(addBtn) addBtn.addEventListener('click', async ()=>{
+    if(addBtn) addBtn.addEventListener('click', ()=>{
       const title = window.prompt('Название произведения:');
       if(!title || !title.trim()) return;
       const composer = window.prompt('Композитор (необязательно):') || '';
       const id = 'r_' + Date.now();
       state.repertoire.push({id, studentId:student.id, title:title.trim(), composer:composer.trim(), status:activeTab, notes:'', links:[], addedAt:new Date().toISOString()});
-      await saveRepertoire();
       renderPanel();
+      saveRepertoire();
     });
     if(state.teacherMode){
       overlay.querySelectorAll('.rep-move').forEach(btn=>{
-        btn.addEventListener('click', async ()=>{
+        btn.addEventListener('click', ()=>{
           const item = state.repertoire.find(r=>r.id===btn.dataset.id);
-          if(item){ item.status = btn.dataset.to; await saveRepertoire(); }
+          if(item){ item.status = btn.dataset.to; }
           renderPanel();
+          saveRepertoire();
         });
       });
       overlay.querySelectorAll('.rep-remove').forEach(btn=>{
-        btn.addEventListener('click', async ()=>{
+        btn.addEventListener('click', ()=>{
           state.repertoire = state.repertoire.filter(r=>r.id!==btn.dataset.id);
-          await saveRepertoire();
           renderPanel();
+          saveRepertoire();
         });
       });
     }
