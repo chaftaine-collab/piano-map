@@ -951,7 +951,8 @@ function disposeThree(){
   if(!threeCtx) return;
   cancelAnimationFrame(threeCtx.animId);
   if(threeCtx.container){
-    threeCtx.container.removeEventListener('click', threeCtx.clickHandler);
+    threeCtx.container.removeEventListener('pointerdown', threeCtx.pointerDownHandler);
+    threeCtx.container.removeEventListener('pointerup', threeCtx.pointerUpHandler);
   }
   window.removeEventListener('resize', threeCtx.resizeHandler);
   threeCtx.renderer.dispose();
@@ -1122,12 +1123,18 @@ function mountThreeScene(student){
     });
   });
 
+  // Tap/click detection via pointer events (not 'click') — on touch devices, OrbitControls'
+  // own touchstart handling can suppress the browser's synthetic click after a drag-to-rotate
+  // gesture, so we track pointerdown/pointerup ourselves and only treat it as a tap if the
+  // finger/cursor barely moved and it was quick (otherwise it's a camera drag, not a tap).
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
-  function clickHandler(ev){
+  let pointerDownInfo = null;
+
+  function handleTap(clientX, clientY){
     const rect = renderer.domElement.getBoundingClientRect();
-    mouse.x = ((ev.clientX-rect.left)/rect.width)*2-1;
-    mouse.y = -((ev.clientY-rect.top)/rect.height)*2+1;
+    mouse.x = ((clientX-rect.left)/rect.width)*2-1;
+    mouse.y = -((clientY-rect.top)/rect.height)*2+1;
     raycaster.setFromCamera(mouse, camera);
     const hits = raycaster.intersectObjects(clickTargets, false);
     if(!hits.length) return;
@@ -1144,7 +1151,20 @@ function mountThreeScene(student){
       }
     }
   }
-  renderer.domElement.addEventListener('click', clickHandler);
+
+  function pointerDownHandler(ev){
+    pointerDownInfo = {x: ev.clientX, y: ev.clientY, t: Date.now()};
+  }
+  function pointerUpHandler(ev){
+    if(!pointerDownInfo) return;
+    const moved = Math.hypot(ev.clientX-pointerDownInfo.x, ev.clientY-pointerDownInfo.y);
+    const dt = Date.now() - pointerDownInfo.t;
+    pointerDownInfo = null;
+    if(moved > 8 || dt > 600) return;
+    handleTap(ev.clientX, ev.clientY);
+  }
+  renderer.domElement.addEventListener('pointerdown', pointerDownHandler);
+  renderer.domElement.addEventListener('pointerup', pointerUpHandler);
 
   function resizeHandler(){
     if(!wrap.isConnected) return;
@@ -1171,7 +1191,7 @@ function mountThreeScene(student){
     threeCtx.animId = requestAnimationFrame(animate);
   }
 
-  threeCtx = {renderer, scene, camera, controls, animId:0, clickTargets, container: renderer.domElement, resizeHandler, clickHandler};
+  threeCtx = {renderer, scene, camera, controls, animId:0, clickTargets, container: renderer.domElement, resizeHandler, pointerDownHandler, pointerUpHandler};
   animate();
 }
 
