@@ -861,15 +861,37 @@ function makeMilkyWayTexture(){
   const ctx = canvas.getContext('2d');
   const g = ctx.createLinearGradient(0,0,0,h);
   g.addColorStop(0,'rgba(150,170,255,0)');
-  g.addColorStop(0.5,'rgba(190,195,255,0.4)');
+  g.addColorStop(0.5,'rgba(195,190,255,0.42)');
   g.addColorStop(1,'rgba(150,170,255,0)');
   ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
-  for(let i=0;i<600;i++){
+  const dustColors = ['rgba(200,140,255,0.16)','rgba(120,200,255,0.14)','rgba(255,160,200,0.13)','rgba(255,205,140,0.12)'];
+  for(let i=0;i<26;i++){
+    const x=Math.random()*w, y=h/2+(Math.random()-0.5)*h*0.6, r=30+Math.random()*70;
+    const grd = ctx.createRadialGradient(x,y,0,x,y,r);
+    const c = dustColors[Math.floor(Math.random()*dustColors.length)];
+    grd.addColorStop(0,c); grd.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=grd; ctx.beginPath(); ctx.ellipse(x,y,r,r*0.55,0,0,Math.PI*2); ctx.fill();
+  }
+  for(let i=0;i<700;i++){
     const x=Math.random()*w, y=h/2+(Math.random()-0.5)*h*0.75, r=0.5+Math.random()*1.3;
     ctx.fillStyle = `rgba(255,255,255,${0.15+Math.random()*0.4})`;
     ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
   }
   return new THREE.CanvasTexture(canvas);
+}
+
+function makeNebulaSprite(colorHex, opacity){
+  const size = 512;
+  const canvas = document.createElement('canvas'); canvas.width=canvas.height=size;
+  const ctx = canvas.getContext('2d');
+  const c = new THREE.Color(colorHex);
+  const grd = ctx.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2);
+  grd.addColorStop(0, rgbaOf(c,opacity));
+  grd.addColorStop(0.5, rgbaOf(c,opacity*0.35));
+  grd.addColorStop(1, rgbaOf(c,0));
+  ctx.fillStyle=grd; ctx.fillRect(0,0,size,size);
+  const tex = new THREE.CanvasTexture(canvas);
+  return new THREE.Sprite(new THREE.SpriteMaterial({map:tex, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false}));
 }
 
 function makeLabelSprite(rawText, dim){
@@ -970,8 +992,22 @@ function mountThreeScene(student){
 
   // starfield — layered for depth, thinned out on small/mobile screens for performance
   const isSmallScreen = wrap.clientWidth < 700;
-  addStarLayer(scene, isSmallScreen ? 1400 : 2600, {minR:90, maxR:260, size:0.55, opacity:0.85, brightnessMin:0.5, brightnessMax:1});
-  addStarLayer(scene, isSmallScreen ? 80 : 160, {minR:90, maxR:260, size:1.7, opacity:0.95, brightnessMin:0.8, brightnessMax:1.3});
+  addStarLayer(scene, isSmallScreen ? 2200 : 4200, {minR:90, maxR:260, size:0.5, opacity:0.8, brightnessMin:0.45, brightnessMax:1});
+  addStarLayer(scene, isSmallScreen ? 150 : 320, {minR:90, maxR:260, size:1.5, opacity:0.95, brightnessMin:0.75, brightnessMax:1.3});
+  addStarLayer(scene, isSmallScreen ? 24 : 46, {minR:80, maxR:230, size:3.2, opacity:1, brightnessMin:1, brightnessMax:1.5});
+
+  // soft nebula clouds for extra color in the deep background
+  const nebulaSpecs = [
+    {color:0x8f5fe8, opacity:0.5, pos:[-130,40,-90], scale:140},
+    {color:0x4fb8c9, opacity:0.45, pos:[150,-30,-120], scale:160},
+    {color:0xe86fa0, opacity:0.35, pos:[60,80,140], scale:120},
+  ];
+  nebulaSpecs.forEach(n=>{
+    const sprite = makeNebulaSprite(n.color, n.opacity);
+    sprite.position.set(n.pos[0], n.pos[1], n.pos[2]);
+    sprite.scale.set(n.scale, n.scale, 1);
+    scene.add(sprite);
+  });
 
   const mwMesh = new THREE.Mesh(
     new THREE.PlaneGeometry(500, 140),
