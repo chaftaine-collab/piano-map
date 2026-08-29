@@ -872,6 +872,30 @@ function makeMilkyWayTexture(){
   return new THREE.CanvasTexture(canvas);
 }
 
+function makeLabelSprite(text, dim){
+  const pad = 14, fontSize = 30;
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.font = `600 ${fontSize}px Manrope, sans-serif`;
+  const textW = ctx.measureText(text).width;
+  canvas.width = textW + pad*2;
+  canvas.height = fontSize + pad*2;
+  ctx.font = `600 ${fontSize}px Manrope, sans-serif`;
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = dim ? 'rgba(10,8,30,0.55)' : 'rgba(10,8,30,0.72)';
+  ctx.beginPath();
+  ctx.roundRect ? ctx.roundRect(0,0,canvas.width,canvas.height,10) : ctx.rect(0,0,canvas.width,canvas.height);
+  ctx.fill();
+  ctx.fillStyle = dim ? 'rgba(230,225,255,0.55)' : 'rgba(242,240,251,0.95)';
+  ctx.fillText(text, pad, canvas.height/2);
+  const tex = new THREE.CanvasTexture(canvas);
+  const mat = new THREE.SpriteMaterial({map:tex, transparent:true, depthWrite:false});
+  const sprite = new THREE.Sprite(mat);
+  const scale = 0.014;
+  sprite.scale.set(canvas.width*scale, canvas.height*scale, 1);
+  return sprite;
+}
+
 function addStarLayer(scene, count, opts){
   const geo = new THREE.BufferGeometry();
   const pos = new Float32Array(count*3);
@@ -975,7 +999,7 @@ function mountThreeScene(student){
     scene.add(new THREE.LineLoop(geo, mat));
   }
 
-  function makeBody({radius, size, color, angle, speed, status, userData, ring, texture, clouds, spin}){
+  function makeBody({radius, size, color, angle, speed, status, userData, ring, texture, clouds, spin, label}){
     addOrbitRing(radius);
     const geo = new THREE.SphereGeometry(size, 32, 32);
     const mat = new THREE.MeshStandardMaterial({
@@ -1013,6 +1037,12 @@ function mountThreeScene(student){
       mesh.add(halo);
     }
 
+    if(label){
+      const labelSprite = makeLabelSprite(label, status==='locked');
+      labelSprite.position.set(0, size*1.7 + 0.35, 0);
+      mesh.add(labelSprite);
+    }
+
     const orbitEntry = {mesh, radius, angle, speed, status, pulse: status==='current', spin: spin||0};
     orbitables.push(orbitEntry);
     if(userData) { mesh.userData = userData; clickTargets.push(mesh); }
@@ -1021,11 +1051,11 @@ function mountThreeScene(student){
 
   // Earth — home base, always unlocked
   makeBody({radius:5, size:EARTH_SIZE, color:EARTH_COLOR, angle:Math.PI*0.15, speed:0.06, status:'completed',
-    texture: makeEarthTexture(), clouds: makeCloudsTexture(), spin:0.6,
+    texture: makeEarthTexture(), clouds: makeCloudsTexture(), spin:0.6, label:'Земля',
     userData:{type:'earth'}});
 
   // Repertoire moon near Earth (opens a panel with all three tabs — играю/мечтаю/выучено)
-  makeBody({radius:2.6, size:0.3, color:0x7ee787, angle:1.1, speed:0.22, status:'completed', spin:0.3,
+  makeBody({radius:2.6, size:0.3, color:0x7ee787, angle:1.1, speed:0.22, status:'completed', spin:0.3, label:'Репертуар',
     userData:{type:'repertoire'}});
 
   // Module planets
@@ -1041,6 +1071,7 @@ function mountThreeScene(student){
       spin: kind==='gas' ? 0.5 : 0.15,
       status: m.status,
       ring: m.planet === 'saturn',
+      label: m.name,
       userData:{type:'module', moduleId:m.id, name:m.name, status:m.status},
     });
   });
