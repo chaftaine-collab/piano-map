@@ -1095,16 +1095,21 @@ function mountThreeScene(student){
   const EARTH_SLOT = 2;
   const earthRadius = RING_BASE + EARTH_SLOT*RING_GAP;
 
-  // Earth — home base, always unlocked
-  makeBody({radius:earthRadius, size:EARTH_SIZE, color:EARTH_COLOR, angle:Math.PI*0.15, speed:0.06, status:'completed',
+  // Earth — home base, always unlocked. Also the start of the student's journey/route line.
+  const earthMesh = makeBody({radius:earthRadius, size:EARTH_SIZE, color:EARTH_COLOR, angle:Math.PI*0.15, speed:0.06, status:'completed',
     texture: makeEarthTexture(), clouds: makeCloudsTexture(), spin:0.6, label:'Земля',
     userData:{type:'earth'}});
+  earthMesh.add(makeHouseFigure(EARTH_SIZE));
 
   // Repertoire moon, orbiting just outside Earth (opens a panel with all three tabs — играю/мечтаю/выучено)
   makeBody({radius:earthRadius+1.3, size:0.3, color:0x7ee787, angle:1.1, speed:0.22, status:'completed', spin:0.3, label:'Репертуар',
     userData:{type:'repertoire'}});
 
-  // Module planets
+  // Module planets — also build the "route": a soft golden trail from Earth through every module
+  // planet in learning order (numbered labels + the path below) so it's clear what's next vs.
+  // still locked, plus an astronaut standing on whichever planet is the student's current one.
+  const routeNodes = [{mesh: earthMesh, dim: false}];
+  let currentModuleMesh = null, currentModuleSize = 0.6;
   moduleStatuses.forEach((m, idx)=>{
     const slot = idx < EARTH_SLOT ? idx : idx+1;
     const radius = RING_BASE + slot*RING_GAP;
@@ -1112,16 +1117,48 @@ function mountThreeScene(student){
     const color = PLANET_COLORS[m.planet] || 0xffffff;
     const kind = PLANET_KIND[m.planet] || 'rocky';
     const texture = kind === 'gas' ? makeGasTexture(color) : makeRockyTexture(color);
-    makeBody({
+    const mesh = makeBody({
       radius, size, color, texture,
       angle: idx*1.7, speed: 0.045/(1+slot*0.35),
       spin: kind==='gas' ? 0.5 : 0.15,
       status: m.status,
       ring: m.planet === 'saturn',
-      label: m.name,
+      label: (idx+1)+'. '+m.name,
       userData:{type:'module', moduleId:m.id, name:m.name, status:m.status},
     });
+    routeNodes.push({mesh, dim: m.status === 'locked'});
+    if(m.status === 'current'){ currentModuleMesh = mesh; currentModuleSize = size; }
   });
+
+  // Trail is a string of soft glow sprites sampled along a smooth curve through the route nodes —
+  // reads as a rounded, blurred golden path rather than a hard technical line. Dims (not
+  // recolours) over the stretch that's still locked.
+  const routeCurvePoints = routeNodes.map(n => n.mesh.position.clone());
+  const routeCurve = routeCurvePoints.length > 1 ? new THREE.CatmullRomCurve3(routeCurvePoints, false, 'catmullrom', 0.35) : null;
+  const routeDots = [];
+  if(routeCurve){
+    const dotsPerSeg = 22;
+    const segCount = routeNodes.length - 1;
+    const totalDots = segCount*dotsPerSeg + 1;
+    const glowTex = makeGlowTexture(0xf2b84b);
+    const sampled = routeCurve.getSpacedPoints(totalDots-1);
+    sampled.forEach((pt, i)=>{
+      const segIdx = Math.min(segCount-1, Math.floor(i/dotsPerSeg));
+      const dim = routeNodes[segIdx+1].dim;
+      const dot = new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false, opacity: dim?0.32:1}));
+      dot.position.copy(pt);
+      dot.scale.set(0.95,0.95,1);
+      scene.add(dot);
+      routeDots.push(dot);
+    });
+  }
+
+  // Astronaut marking the planet the student is currently exploring
+  let astronaut = null;
+  if(currentModuleMesh){
+    astronaut = makeAstronautFigure();
+    scene.add(astronaut);
+  }
 
   // Tap/click detection via pointer events (not 'click') — on touch devices, OrbitControls'
   // own touchstart handling can suppress the browser's synthetic click after a drag-to-rotate
@@ -1186,6 +1223,17 @@ function mountThreeScene(student){
         o.mesh.scale.set(s,s,s);
       }
     });
+    if(routeCurve){
+      routeCurvePoints.forEach((p,i)=> p.copy(routeNodes[i].mesh.position));
+      routeCurve.updateArcLengths();
+      const sampled = routeCurve.getSpacedPoints(routeDots.length-1);
+      routeDots.forEach((dot,i)=> dot.position.copy(sampled[i]));
+    }
+    if(astronaut && currentModuleMesh){
+      const bob = Math.sin(t*1.6)*0.05;
+      astronaut.position.set(currentModuleMesh.position.x, currentModuleMesh.position.y + currentModuleSize*1.25 + bob, currentModuleMesh.position.z);
+      astronaut.rotation.y += 0.012;
+    }
     controls.update();
     renderer.render(scene, camera);
     threeCtx.animId = requestAnimationFrame(animate);
@@ -1193,6 +1241,76 @@ function mountThreeScene(student){
 
   threeCtx = {renderer, scene, camera, controls, animId:0, clickTargets, container: renderer.domElement, resizeHandler, pointerDownHandler, pointerUpHandler};
   animate();
+}
+
+function makeAstronautFigure(){
+  const group = new THREE.Group();
+  // Fully golden and emissive (not just a flat suit color) so the figure glows and reads clearly
+  // against any planet texture, light or dark, instead of blending into it.
+  const suitMat = new THREE.MeshStandardMaterial({color:0xf2b84b, roughness:0.4, metalness:0.15, emissive:0xf2b84b, emissiveIntensity:0.55});
+  const visorMat = new THREE.MeshStandardMaterial({color:0x3a2a10, roughness:0.2, metalness:0.6, emissive:0xf2b84b, emissiveIntensity:0.9});
+  const trimMat = new THREE.MeshStandardMaterial({color:0xf2b84b, roughness:0.4, metalness:0.2, emissive:0xf2b84b, emissiveIntensity:0.5});
+
+  const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.11,0.13,0.26,16), suitMat);
+  torso.position.y = 0.13;
+  group.add(torso);
+
+  const backpack = new THREE.Mesh(new THREE.BoxGeometry(0.14,0.2,0.08), trimMat);
+  backpack.position.set(0,0.14,-0.11);
+  group.add(backpack);
+
+  const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.11,20,20), suitMat);
+  helmet.position.y = 0.32;
+  group.add(helmet);
+
+  const visor = new THREE.Mesh(new THREE.SphereGeometry(0.075,16,16), visorMat);
+  visor.position.set(0,0.32,0.075);
+  visor.scale.set(1,0.85,0.6);
+  group.add(visor);
+
+  [[-0.15,0.5],[0.15,-0.5]].forEach(([xOff, tilt])=>{
+    const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.035,0.22,10), suitMat);
+    arm.position.set(xOff,0.16,0);
+    arm.rotation.z = tilt*0.5;
+    group.add(arm);
+  });
+  [-0.055,0.055].forEach(xOff=>{
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.045,0.16,10), trimMat);
+    leg.position.set(xOff,-0.06,0);
+    group.add(leg);
+  });
+
+  const beacon = new THREE.Sprite(new THREE.SpriteMaterial({map:makeGlowTexture(0xf2b84b), transparent:true, blending:THREE.AdditiveBlending, depthWrite:false}));
+  beacon.position.y = 0.02;
+  beacon.scale.set(0.55, 0.55, 1);
+  group.add(beacon);
+
+  group.scale.set(1.4,1.4,1.4);
+  return group;
+}
+
+// Little red house sitting on Earth — home base the astronaut sets out from on each mission.
+function makeHouseFigure(planetSize){
+  const group = new THREE.Group();
+  const wallMat = new THREE.MeshStandardMaterial({color:0x8a5a34, roughness:0.65, metalness:0.05, emissive:0x8a5a34, emissiveIntensity:0.2});
+  const roofMat = new THREE.MeshStandardMaterial({color:0xc0392b, roughness:0.5, metalness:0.05, emissive:0xc0392b, emissiveIntensity:0.35});
+  const doorMat = new THREE.MeshStandardMaterial({color:0x3a2a10, roughness:0.7});
+
+  const walls = new THREE.Mesh(new THREE.BoxGeometry(0.34,0.26,0.34), wallMat);
+  walls.position.y = 0.13;
+  group.add(walls);
+
+  const roof = new THREE.Mesh(new THREE.ConeGeometry(0.29,0.24,4), roofMat);
+  roof.position.y = 0.26 + 0.12;
+  roof.rotation.y = Math.PI/4;
+  group.add(roof);
+
+  const door = new THREE.Mesh(new THREE.PlaneGeometry(0.09,0.14), doorMat);
+  door.position.set(0, 0.07, 0.171);
+  group.add(door);
+
+  group.position.y = planetSize;
+  return group;
 }
 
 function showLockToast(msg){
